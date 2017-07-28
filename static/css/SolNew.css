@@ -1,0 +1,37 @@
+
+.bannerNew{position: relative; z-index: 1; width: 546px; overflow: hidden; height:305px; margin:0 auto;}
+.bannerNew_f{ width: 100%;  position: absolute; left:0; top: 0px; height:305px; overflow: hidden; z-index: 2}
+.bannerNew_s{ position: absolute; left:0; width:546px;}
+.bannerNew_s img{ width: 546px; height:305px;}
+.bannerNew_btn{position:absolute; right:40%; bottom:28px; z-index:10;}
+.bannerNew_btn li{float:left;background: url(/static/img/btn-li.png) no-repeat center; width:12px; height:12px; line-height:20px; margin:0px 3px; cursor:pointer; overflow:hidden;text-align:center;}
+.bannerNew_btn li.click{background:url(/static/img/btn-li-h.png) no-repeat center; }
+
+#slider{width: 546px;margin: 0 auto;height: 310px;margin-top:15px; position:relative;}
+        .fangda{display:inline-block;width:43px;height:43px;position:absolute;right:0px;bottom:157px;z-index:10;cursor:pointer;}
+        .show-box{width:546px;height:239px;position:relative;z-index:1; overflow:hidden;}
+        .show-box ul{width:546px;height:239px;margin:0 auto;}
+        
+        .show-box li{display: none;width: 100%;float: left;height: auto;}
+        .show-box .show{display: block;/*_margin: 0 auto;_width:expression(eval(this.offsetWidth>643?643:this.offsetWidth))*/}
+        .show-box a{display:inline-block;max-width:546px;height:365px; text-decoration:none !important;}
+        .show-box a:hover{ text-decoration:none !important;}
+        .show-box img{display: block;width: 546px;height:365px;margin:  0 auto;_width: 100%;}
+        .show-btn{display: block;height: 100%;width: 43px;position: absolute;_height:expression(eval(this.parentNode.offsetHeight));top:0px;*top:0;}
+        .show-prev{left: 0;}
+        .show-next{right: 0;_right:-1px}
+        .show-btn span{display: block;position: absolute;top:50%;width: 100%;cursor: pointer;margin-top: -23px;width:43px;height:88px;}
+        .show-prev{ background:url(/static/img/skin-icon.png) left no-repeat;}
+        .show-next{background:url(/static/img/skin-icon.png) no-repeat right center;}
+        /*小图列表部分*/
+        .minImgs{width: 100%; position: relative; float: left;overflow: hidden;}
+        .clear{clear: both;}
+        .min-btn{height: 100%;width: 26px;position: absolute;top:0;display: block;background: url(/static/img/left-skin.png) no-repeat}
+        .min-prev{left:0; }
+        .min-next{right: 0;background: url(/static/img/right-skin.png) no-repeat}
+        .min-box{width: 495px;height: 100%;margin: 0 auto;position: relative;overflow: hidden;height:67px;}
+        .min-box-list{height: 100%;position: absolute;left:0;top:0;width: 776px}
+        .min-box-list .cur{border:1px solid #F00; margin:0;}
+        .min-box-list li{height:65px;width: 98px;float: left;cursor: pointer; margin:1px;}
+        .min-box-list li div{width:98px;height: 65px;overflow:hidden;margin: 0 auto}
+        .min-box-list li div img{width:98px;height:65px;} 

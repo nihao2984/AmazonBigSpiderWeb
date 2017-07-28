@@ -1,0 +1,19 @@
+CREATE TABLE `report` (
+  `id` varchar(255) NOT NULL,
+  `pasin` varchar(255) DEFAULT NULL,
+  `asin` varchar(255) DEFAULT NULL,
+  `uv` int(11) DEFAULT NULL,
+  `uvb` varchar(255) DEFAULT NULL,
+  `pv` int(11) DEFAULT NULL,
+  `pvb` varchar(255) DEFAULT NULL,
+  `bpvb` varchar(255) DEFAULT NULL,
+  `on` int(11) DEFAULT NULL,
+  `onr` varchar(255) DEFAULT NULL,
+  `v` float DEFAULT NULL,
+  `c` int(11) DEFAULT NULL,
+  `d` int(11) DEFAULT NULL,
+  `aws` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

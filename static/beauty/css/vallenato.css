@@ -1,0 +1,63 @@
+#accordion-container {
+	font-size: 13px;
+	background: #ffffff;
+	padding: 5px 10px 10px 10px;
+	border: 1px solid #cccccc;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	-moz-box-shadow: 0 5px 15px #cccccc;
+	-webkit-box-shadow: 0 5px 15px #cccccc;
+	box-shadow: 0 5px 15px #cccccc;
+	transition: 0.5s all;
+	-webkit-transition: 0.5s all;
+	-moz-transition: 0.5s all;
+	-o-transition: 0.5s all;
+}
+
+.accordion-header {
+	font-size: 16px;
+	margin: 10px 0 0 0;
+	padding: 10px 10px;
+	cursor: pointer;
+	font-weight:700;
+	transition: 0.5s all;
+	-webkit-transition: 0.5s all;
+	-moz-transition: 0.5s all;
+	-o-transition: 0.5s all;
+}
+
+.active-header {
+	background: url(../images/right-arrow.png) #40A6CF;
+	background-repeat: no-repeat;
+	background-position: 95% 50%;
+	color:#FFF;
+	font-weight:700;
+}
+
+.active-header:hover {
+	background: url(../images/down-arrow.png) #40A6CF;
+	background-repeat: no-repeat;
+	background-position: 95% 50%;
+	color:#FFF;
+}
+
+.inactive-header {
+	background: url(../images/right-arrow.png) #F3F3F3;
+	background-repeat: no-repeat;
+	background-position: 95% 50%;
+	font-weight:700;
+	color: #3D3E41;
+}
+
+.inactive-header:hover {
+	background: url(../images/down-arrow.png) #40A6CF;
+	background-repeat: no-repeat;
+	background-position: 95% 50%;
+}
+
+.accordion-content {
+	display: none;
+	background: #ffffff;
+	border-top: 0;
+}
