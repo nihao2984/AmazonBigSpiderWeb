@@ -1,0 +1,127 @@
+<table id="dg" title="数据列表" style="width:550px;height:250px">
+</table>
+
+<div id="toolbar">
+    <div style="font-size:1.0em">
+    <label style="margin-left:10px"> 大类名：</label>
+    <select id='bigname' class="easyui-combobox">
+<option value=''>All</option>
+{{range $index, $e :=.category}}
+        <option value={{$e.id}}>{{$e.id}}. {{$e.Bigpname}}</option>
+    {{end}}
+    </select>
+    <label style="margin-left:10px"> 更新日期：</label>
+    <input id="date" type="text" value="" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser" />
+<label style="margin-left:10px"> 状态：</label>
+                <select id='isvalid' class="easyui-combobox" style="width:100px">
+            <option value="2">全部</option>
+            <option value="1">正常</option>
+            <option value="0">已注销</option>
+            </select>
+        <script type="text/javascript">
+ function myformatter(date){
+ var y = date.getFullYear();
+ var m = date.getMonth()+1;
+ var d = date.getDate();
+ return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+}
+ function myparser(s){
+ if (!s) return new Date();
+ var ss = (s.split('-'));
+var y = parseInt(ss[0],10);
+ var m = parseInt(ss[1],10);
+var d = parseInt(ss[2],10);
+if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+return new Date(y,m-1,d);
+}else{
+ return new Date();
+ }
+ }
+ </script>
+    <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="getabout()">查询</a>
+
+<label style="margin-left:10px"> ASIN：</label>
+        <input type="text" id="asin" name="asin" />
+        <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="getabout1()">查找</a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#dg').datagrid({
+        url: '/uk/asin/query',
+        collapsible: true,
+        toolbar: '#toolbar',
+        rownumbers: true,
+        pageSize:10,
+        pagination: true,
+        pageList: [10, 20,30],
+        fit: true,
+        columns: [[
+            {field: 'asin', title: 'Asin', width: 80,align: 'center',
+                formatter: function (value, row, index) {
+                    return "<a href='https://www.amazon.co.uk/dp/" + row.id + "' target='_blank'>" + row.id + "</a>";
+                }},
+            {field: 'category', title: '大类名', width: 120,align: 'center'},
+            {field: 'times', title: '出现次数', width: 80,align: 'center'},
+             {
+                field: 'createtime', title: '创建时间', width: 120,
+                formatter: function (value, row, index) {
+                   /* if (value) return phpjs.date("Y-m-d H:i:s", phpjs.strtotime(value));*/
+                    return value;
+                }
+                }
+                ,
+             {
+                field: 'updatetime', title: '更新时间', width: 120,
+                formatter: function (value, row, index) {
+                   /* if (value) return phpjs.date("Y-m-d H:i:s", phpjs.strtotime(value));*/
+                    return value;
+                }
+                },
+             {
+                field: 'isvalid', title: '状态', width: 120,
+                formatter: function (value, row, index) {
+                   if(value=="1"){
+                   return "<span style='color:green'>正常</span>"}
+                   else{
+                    return "<span style='color:red'>已注销</span>";
+                    }
+                }
+
+            },  {field: 'histroy', title: '历史趋势', width: 120,align: 'center',
+            formatter: function (value, row, index) {
+                    return "<a target='_blank' href='/uk/big/asin?asin="+row.id+"'>历史趋势</a>"
+                    }
+            }
+        ]]
+    });
+
+
+    function getabout() {
+        var datename = $('#date').datebox('getValue');
+        var bigname = $('#bigname').combobox('getValue');
+        var isvalid =$('#isvalid').combobox('getValue');
+        $('#dg').datagrid('load', {
+            datename: datename,
+            bigname: bigname,
+            isvalid:isvalid
+        });
+
+    }
+
+     function getabout1() {
+        var asin = $('#asin').val();
+        //alert(asin)
+                if(asin==""){
+          $.messager.show({	// show error message
+                title: '消息',
+                msg: "Asin不能为空"
+            });
+        return
+        }
+        $('#dg').datagrid('load', {
+            asin:asin
+        });
+
+    }
+</script>

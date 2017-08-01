@@ -1,0 +1,265 @@
+<table id="dg" title="数据列表" style="width:570px;height:270px">
+</table>
+
+<div id="toolbar">
+    <div style="font-size:1.0em">
+    <label style="margin-left:10px"> 日期：</label>
+    <input id="date" type="text" value="2016-11-02" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser" />
+         <label style="margin-left:10px"> 大类名：</label>
+    <select id='bigname' class="easyui-combobox">
+<option value=''>All</option>
+<option value='NULL'>爆款</option>
+{{range $index, $e :=.category}}
+        <option value={{$e.Bigpname}}>{{$e.id}}. {{$e.Bigpname}}</option>
+    {{end}}
+    </select>
+         <label style="margin-left:10px"> FBA：</label>
+    <select id='fba' class="easyui-combobox" style="width:70px">
+<option value=''>All</option>
+<option value='FBA'>FBA</option><option value='other'>Other</option>
+    </select>
+                 <label style="margin-left:10px"> 自营：</label>
+    <select id='sold' class="easyui-combobox" style="width:80px">
+<option value=''>All</option>
+<option value='自营'>自营</option><option value='非自营'>非自营</option>
+    </select>
+        <script type="text/javascript">
+ function myformatter(date){
+ var y = date.getFullYear();
+ var m = date.getMonth()+1;
+ var d = date.getDate();
+ return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+}
+ function myparser(s){
+ if (!s) return new Date();
+ var ss = (s.split('-'));
+var y = parseInt(ss[0],10);
+ var m = parseInt(ss[1],10);
+var d = parseInt(ss[2],10);
+if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+return new Date(y,m-1,d);
+}else{
+ return new Date();
+ }
+ }
+ </script>
+    <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="getabout()">查询</a>
+        <a href="#" class="easyui-linkbutton" onclick="exportdata()">全部导出</a>
+
+        <label style="margin-left:10px"> ASIN：</label>
+        <input type="text" id="asin" name="asin" />
+        <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="getabout1()">查找</a>
+        <a href="#" style="margin-left:10px;width:150px" class="easyui-linkbutton" onclick="exportdata1()">导出前10000名</a>
+         <div style="margin:5px">
+        <label>价格区间:</label><input id="bprice" type="text" style="width:70px"> - <input id="eprice" type="text" style="width:70px">
+        <label style="margin-left:10px">评论数区间:</label><input id="breview" type="text" style="width:70px"> - <input id="ereview" type="text" style="width:70px">
+        <label style="margin-left:10px">打分区间:</label><input id="bscore" type="text" style="width:70px"> - <input id="escore" type="text" style="width:70px">
+         <label style="margin-left:10px">排名区间:</label><input id="brate" type="text" style="width:70px"> - <input id="erate" type="text" style="width:70px">
+         </div>
+    </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#dg').datagrid({
+        url: '/de/big/query',
+        collapsible: true,
+        toolbar: '#toolbar',
+        rownumbers: true,
+        pageSize:10,
+        pagination: true,
+        pageList: [10, 50,100],
+        fit: true,
+        columns: [[
+             {field: 'img', title: '图像', width: 120,align: 'center',
+            formatter: function (value, row, index) {
+                    if(value!=undefined && value!=""){
+                    return "<img style='width:100px;height:100px' src='"+value+"' />"}else{
+                    return ""
+                    }
+                }
+            },
+            {field: 'asin', title: 'Asin', width: 80,align: 'center',
+                formatter: function (value, row, index) {
+                    return "<a href='https://www.amazon.de/dp/" + row.id + "' target='_blank'>" + row.id + "</a>";
+                }},
+            {field: 'title', title: '标题', width: 400,
+                formatter: function (value, row, index) {
+                    return value;
+                }},
+            {field: 'price', title: '价格', width: 80,align: 'center'},
+            {field: 'reviews', title: '评论数', width: 80,align: 'center'},
+            {field: 'score', title: '打分', width: 80,align: 'center'},
+            {field: 'ship', title: 'FBA', width: 120,align: 'center'},
+            {field: 'sold', title: '自营', width: 120,align: 'center'},
+            {field: 'bigname', title: '大类名', width: 120,align: 'center'},
+            {field: 'rank', title: '大类排名', width: 80,align: 'center'},
+             {field: 'histroy', title: '历史趋势', width: 120,align: 'center',
+            formatter: function (value, row, index) {
+                    if(row.img!=undefined && row.img!=""){
+                    return "<a target='_blank' href='/de/big/asin?asin="+row.id+"' ><img style='width:100px;height:100px' src='"+row.img+"' /></a>"}else{
+                    return "<a target='_blank' href='/de/big/asin?asin="+row.id+"'>历史趋势</a>"
+                    }
+                }
+            },
+             {
+                field: 'createtime', title: '抓取时间', width: 120,align: 'center',
+                formatter: function (value, row, index) {
+                   /* if (value) return phpjs.date("Y-m-d H:i:s", phpjs.strtotime(value));*/
+                    return value;
+                }
+            }
+        ]]
+    });
+
+
+    function getabout() {
+        var datename = $('#date').datebox('getValue');
+        if(datename==""){
+                       $.messager.show({	// show error message
+                title: '消息',
+                msg: "日期不能为空(20161010)"
+            });
+            return
+        }
+        var bigname = $('#bigname').combobox('getValue');
+        var fba = $('#fba').combobox('getValue');
+        var sold = $('#sold').combobox('getValue');
+        var bprice = $('#bprice').val()
+        var eprice = $('#eprice').val()
+        var breview = $('#breview').val()
+        var ereview = $('#ereview').val()
+        var bscore = $('#bscore').val()
+        var escore = $('#escore').val()
+        var brate = $('#brate').val()
+        var erate = $('#erate').val()
+        $('#dg').datagrid('load', {
+            datename: datename,
+            bigname: bigname,
+            fba:fba,
+            sold:sold,
+            bprice:bprice,
+            eprice:eprice,
+            breview:breview,
+            ereview:ereview,
+            bscore:bscore,
+            escore:escore,
+            brate:brate,
+            erate:erate
+        });
+
+    }
+
+        function exportdata() {
+        var datename = $('#date').datebox('getValue');
+        if(datename==""){
+           $.messager.show({	// show error message
+                title: '消息',
+                msg: "请选择日期"
+            });
+            return
+        }
+        if(bigname==""){
+           $.messager.show({	// show error message
+                title: '消息',
+                msg: "不能导出全部大类"
+            });
+        }
+        var bigname = $('#bigname').combobox('getValue');
+        var fba = $('#fba').combobox('getValue');
+        var sold = $('#sold').combobox('getValue');
+          var bprice = $('#bprice').val()
+        var eprice = $('#eprice').val()
+        var breview = $('#breview').val()
+        var ereview = $('#ereview').val()
+        var bscore = $('#bscore').val()
+        var escore = $('#escore').val()
+        var brate = $('#brate').val()
+        var erate = $('#erate').val()
+        var pg = $('#dg').datagrid('getPager').data("pagination").options;
+        $.post('/de/big/export', {
+        'page':pg.pageNumber,
+        'rows':pg.pageSize,
+        'datename':datename,
+        'bigname': bigname,
+        "fba":fba,
+        "sold":sold,
+         bprice:bprice,
+            eprice:eprice,
+            breview:breview,
+            ereview:ereview,
+            bscore:bscore,
+            escore:escore,
+            brate:brate,
+            erate:erate
+
+        }, function (result) {
+                if(result.status==true){
+                    window.open(result.info)
+                }else{
+                $.messager.show({	// show error message
+                title: '消息',
+                msg: result.info
+            });
+                }
+           })
+    }
+      function getabout1() {
+     var datename = $('#date').datebox('getValue');
+        if(datename==""){
+                       $.messager.show({	// show error message
+                title: '消息',
+                msg: "日期不能为空(20161010)"
+            });
+            return
+        }
+        var asin = $('#asin').val();
+        //alert(asin)
+        if(asin==""){
+          $.messager.show({	// show error message
+                title: '消息',
+                msg: "Asin不能为空"
+            });
+        return
+        }
+        $('#dg').datagrid('load', {
+         datename: datename,
+            asin:asin
+        });
+
+    }
+
+
+
+     function exportdata1() {
+        var datename = $('#date').datebox('getValue');
+        if(datename==""){
+           $.messager.show({	// show error message
+                title: '消息',
+                msg: "请选择日期"
+            });
+            return
+        }
+        if(bigname==""){
+           $.messager.show({	// show error message
+                title: '消息',
+                msg: "不能导出全部大类"
+            });
+        }
+        var bigname = $('#bigname').combobox('getValue');
+        $.post('/de/big/export', {
+        'isall':1,
+        'datename':datename,
+        'bigname': bigname,
+        }, function (result) {
+                if(result.status==true){
+                    window.open(result.info)
+                }else{
+                $.messager.show({	// show error message
+                title: '消息',
+                msg: result.info
+            });
+                }
+           })
+    }
+</script>

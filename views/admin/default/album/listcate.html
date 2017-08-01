@@ -1,0 +1,157 @@
+<table id="dg" title="相册分类（仅支持二级分类）" style="width:550px;height:250px">
+</table>
+<div id="toolbar">
+    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="updateuser()">编辑分类</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">删除分类</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="adduser()">增加分类</a>
+    <div>
+        <label>目录：</label>
+        <select id='mulu' class="form-control" name='mulu' style='width:200px;margin: 0 5px'>
+            <option value=0></option>
+            {{range $index, $e :=.category}}
+                <option value={{$e.Id}}>{{$e.Title}}</option>
+            {{end}}
+        </select>
+        <label>状态：</label>
+        <select id='status' class="form-control" name='status' style='width:200px;margin: 0 5px'>
+            <option value=''></option>
+            <option value=1>已开启</option>
+            <option value=2>已关闭</option>
+        </select>
+        <a href="#" class="easyui-linkbutton" onclick="getabout()">查询</a>
+    </div>
+</div>
+<script type="text/javascript">
+$('#dg').datagrid({
+    url: '/picture/album/index',
+    collapsible: true,
+    toolbar: '#toolbar',
+    rownumbers: true,
+    pagination: true,
+    pageList: [5, 10, 30],
+    fit: true,
+    columns: [
+        [{
+            field: 'ck',
+            checkbox: true
+        }, {
+            field: 'Id',
+            title: '单页ID',
+            width: 100,
+            hidden: true
+        }, {
+            field: 'Title',
+            title: '标题',
+            width: 200
+        }, {
+            field: 'Createtime',
+            title: '创建时间',
+            width: 200,
+                formatter: function(value, row, index) {
+                    if (value) return phpjs.date("Y-m-d H:i:s", phpjs.strtotime(value));
+                    return value;
+                }
+        }, {
+            field: 'Updatetime',
+            title: '更新时间',
+            width: 200,
+                formatter: function(value, row, index) {
+                    if (value) return phpjs.date("Y-m-d H:i:s", phpjs.strtotime(value));
+                    return value;
+                }
+        }, {
+            field: 'Sort',
+            title: '排序',
+            width: 100
+        }, {
+            field: 'Image',
+            title: '图片',
+            width: 100,
+            formatter: function(value, row, index) {
+                return "<a href='"+value+"' target='_blank'>"+value+"</a>";
+            }
+        }, {
+            field: 'Status',
+            title: '状态',
+            width: 200,
+            formatter: function(value, row, index) {
+                    //alert(value);
+                    $para = row.Id + ',';
+                    if (value == 1) {
+                        return "已开启|<button style='color:red;font-size:1.1em;margin-left:10px;cursor:pointer' onclick='updatestatus(" + $para + "2)'>关闭</a>";
+                    } else {
+                        return "已关闭|<button style='color:red;font-size:1.1em;margin-left:10px;cursor:pointer' onclick='updatestatus(" + $para + "1)'>开启</a>";
+                    }
+                    //alert(row);
+                    //一整行数据
+                    //alert(index);第几行
+                }
+                //
+        }]
+    ]
+});
+
+
+function destroyUser() {
+    var rows = $('#dg').datagrid('getSelections');
+    if (rows.length != 0) {
+        $.messager.confirm('Confirm', '你确定要删除?', function(r) {
+            if (r) {
+                var uri = "/picture/album/deletealbum";
+                for (var i = 0; i < rows.length; i++) {
+                    var row = rows[i];
+                    $.post(uri, {
+                        'id': row.Id
+                    }, function(result) {
+                        $.messager.show({ // show error message
+                            title: '消息',
+                            msg: result.info
+                        });
+                        $('#dg').datagrid('reload'); // reload the user da
+                    });
+                }
+            }
+        });
+    } else {
+        alert("请勾选按钮")
+    }
+}
+
+function updateuser() {
+    var row = $('#dg').datagrid('getSelected');
+    if (row) {
+        window.open("/picture/album/updatealbum?id=" + row.Id);
+    } else {
+        alert("请勾选按钮")
+    }
+}
+
+function adduser() {
+    window.open("/picture/album/addalbum");
+}
+
+
+function getabout() {
+    var status = $('#status').val();
+    var mulu = $('#mulu').val();
+    $('#dg').datagrid('load', {
+        status: status,
+        mulu: mulu
+    });
+}
+
+function updatestatus(id, status) {
+    $.post('/picture/album/updatealbum', {
+        "small":1,
+        'id': id,
+        'status': status
+    }, function(result) {
+        $.messager.show({ // show error message
+            title: '消息',
+            msg: result.info
+        });
+        $('#dg').datagrid('reload'); // reload the user da
+    });
+
+}
+</script>

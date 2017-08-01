@@ -1,0 +1,198 @@
+<table id="dg" title="数据列表" style="width:550px;height:250px">
+</table>
+
+<div id="toolbar">
+    <div style="font-size:1.0em">
+    <label style="margin-left:10px"> 起始日期：</label>
+    <input id="bdate" type="text" value="" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser" />
+            <label style="margin-left:10px"> 截止日期：</label>
+    <input id="edate" type="text" value="" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser" />
+        <script type="text/javascript">
+ function myformatter(date){
+ var y = date.getFullYear();
+ var m = date.getMonth()+1;
+ var d = date.getDate();
+ return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+}
+ function myparser(s){
+ if (!s) return new Date();
+ var ss = (s.split('-'));
+var y = parseInt(ss[0],10);
+ var m = parseInt(ss[1],10);
+var d = parseInt(ss[2],10);
+if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+return new Date(y,m-1,d);
+}else{
+ return new Date();
+ }
+ }
+ </script>
+            <label style="margin-left:10px"> 店铺名：</label>
+    <select id='aws' class="easyui-combobox" style="width:200px">
+<option value=''>All</option>
+{{range $index, $e :=.category}}
+        <option value={{$e.AWS}}>{{$e.AWS}}</option>
+    {{end}}
+    </select>
+        <label style="margin-left:10px"> ASIN：</label>
+        <input type="text" id="asin" name="asin" />
+    <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="getabout()">查询</a>
+        <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="exportdata()">导出</a>
+         <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="deleteid()">删除</a>
+            <span>
+                <button type="submit" class="easyui-linkbutton" style="margin-left:10px;width:200px" id='upload_button'>导入</button>
+            </span>
+         <span id='uploadphotoconfirm' style='color:red'></span>
+        </div>
+    </div>
+    </div>
+</div>
+<script src="/static/tool/ajaxupload.js"></script>
+<script type="text/javascript">
+    $('#dg').datagrid({
+        url: '/csv/report/query',
+        collapsible: true,
+        toolbar: '#toolbar',
+        rownumbers: true,
+        pageSize:10,
+        pagination: true,
+        pageList: [10, 20,30],
+        fit: true,
+        columns: [[
+        {field: 'ck', checkbox: true},
+        {field: 'id', title: 'ID', width: 100,hidden:true},
+            {field: 'pasin', title: 'Asin(父)', width: 80,align: 'center',
+                formatter: function (value, row, index) {
+                    return "<a href='https://www.amazon.com/dp/" + value + "' target='_blank'>" + value + "</a>";
+                }},
+                 {field: 'asin', title: 'Asin(子)', width: 80,align: 'center',
+                formatter: function (value, row, index) {
+                    return "<a href='https://www.amazon.com/dp/" + value + "' target='_blank'>" + value + "</a>";
+                }},
+                  {field: 'd', title: '日期', width: 80,align: 'center'},
+            {field: 'title', title: '商品名称', width: 200,
+                formatter: function (value, row, index) {
+                    return value;
+                }},
+              {field: 'uv', title: '买家访问次数', width: 80,align: 'center'},
+              {field: 'uvb', title: '该日买家访问次数百分比', width: 140},
+              {field: 'pv', title: '页面浏览次数', width: 100},
+              {field: 'pvb', title: '该日页面浏览次数百分比', width: 140},
+     {field: 'bpvb', title: '该日购物车占比', width: 140},
+              {field: 'on', title: '该日已订购商品数量', width: 140},
+               {field: 'onr', title: '该日订单商品数量转化率', width: 140},
+              {field: 'v', title: '该日已订购商品销售额', width: 140},
+                {field: 'c', title: '该日订单数', width: 140},
+              {field: 'aws', title: '店铺名', width: 100}
+
+        ]]
+    });
+
+
+    function getabout() {
+    var asin = $('#asin').val();
+        var bdatename = $('#bdate').datebox('getValue');
+        var edatename = $('#edate').datebox('getValue');
+      var bigname = $('#aws').combobox('getValue');
+        $('#dg').datagrid('load', {
+            bdatename: bdatename,
+            edatename: edatename,
+            aws: bigname,
+            asin:asin
+        });
+
+    }
+
+        function exportdata() {
+        var asin = $('#asin').val();
+         var bdatename = $('#bdate').datebox('getValue');
+        var edatename = $('#edate').datebox('getValue');
+      var bigname = $('#aws').combobox('getValue');
+        $.post('/csv/report/export', {'asin':asin,'bdatename':bdatename,"edatename":edatename,"aws":bigname}, function (result) {
+                if(result.status==true){
+                    window.open(result.info)
+                }else{
+                $.messager.show({	// show error message
+                title: '消息',
+                msg: result.info
+            });
+                }
+           })
+    }
+
+
+ function deleteid() {
+        var rows = $('#dg').datagrid('getSelections');
+        if (rows.length != 0) {
+            $.messager.confirm('Confirm', '你确定要删除？', function (r) {
+                if (r) {
+                    var uri = "/csv/report/delete";
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i];
+                        $.post(uri, {'id': row.id}, function (result) {
+                            $.messager.show({	// show error message
+                                title: '消息',
+                                msg: result.info
+                            });
+                            if(result.status){
+                            $('#dg').datagrid('reload');	// reload the user da
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            alert("请勾选按钮")
+        }
+    }
+</script>
+        <script>
+    $(function () {
+        var button = $('#upload_button'), interval;
+        var confirmdiv = $('#uploadphotoconfirm');
+        var fileNum = "one";
+        new AjaxUpload(button, {
+            action: "/csv/report/import",
+            name: 'imgFile',
+            responseType: 'json',
+            onSubmit: function (file, ext) {
+
+                    if (ext && /^(csv)$/.test(ext)) {
+                        this.setData({
+                            'info': '文件类型为csv'
+                        });
+                    } else {
+                        confirmdiv.text('文件格式错误，请上传格式为csv的文件');
+                        return false;
+                    }
+
+
+                confirmdiv.text('文件上传中');
+
+                if (fileNum == 'one')
+                    this.disable();
+
+                interval = window.setInterval(function () {
+                    var text = confirmdiv.text();
+                    if (text.length <= 5) {
+                        confirmdiv.text('文件上传中...');
+                    } else {
+                        confirmdiv.text('文件上传中');
+                    }
+                }, 200);
+            },
+            onComplete: function (file, response) {
+                if (response.error == 1) {
+                    confirmdiv.text(response.message);
+                } else {
+                    confirmdiv.text(response.message);
+                    $('#dg').datagrid('reload');	// reload the user da
+                }
+
+                window.clearInterval(interval);
+                this.enable();
+            }
+        });
+    });
+
+</script>

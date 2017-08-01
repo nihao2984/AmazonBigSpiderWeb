@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.title}}</title>
+     <script src="/static/tool/echarts.min.js"></script>
+     <script src="/static/js/jquery-2.1.4.min.js"></script>
+</head>
+<body>
+
+
+<div id="main" style="margin:20px auto;width: 900px;;height:600px;"></div>
+<div style="margin:20px auto;width: 900px">
+    <div id="info" style="margin:20px auto;text-align:center">
+    </div>
+    <hr />
+{{.ddjson}}
+<hr />
+    {{.json}}
+</div>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+    var data=JSON.parse({{.ddjson}});
+    var info=JSON.parse({{.json}});
+    var j= "<a target='_blank' href='https://www.amazon.co.jp/dp/"+info.id+"'>点我<img src='"+info.img+"' /></a><br/>大类名:"+info.bigname+"<br/>标题"+info.title;
+    $("#info").html(j);
+        // 指定图表的配置项和数据
+        var option = {
+    title: {
+        text: info.id+'商品趋势'
+    },
+    tooltip : {
+        trigger: 'axis'
+    },
+    legend: {
+        data:['大类排名','价格','reviews','scores']
+    },
+    toolbox: {
+        feature: {
+            saveAsImage: {}
+        }
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis : [
+        {
+            type : 'category',
+            boundaryGap : false,
+            data : data.day
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value'
+        }
+    ],
+    series : [
+        {
+            name:'价格',
+            type:'line',
+            stack: '总量',
+            areaStyle: {normal: {}},
+            data:data.price
+        },
+        {
+            name:'大类排名',
+            type:'line',
+            stack: '总量',
+            areaStyle: {normal: {}},
+            data:data.rank
+        },
+        {
+            name:'reviews',
+            type:'line',
+            stack: '总量',
+            areaStyle: {normal: {}},
+            data:data.reviews
+        },
+        {
+            name:'scores',
+            type:'line',
+            stack: '总量',
+            areaStyle: {normal: {}},
+            data:data.score
+        }
+    ]
+};
+
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+</html>

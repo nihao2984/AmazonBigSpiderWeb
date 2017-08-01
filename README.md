@@ -2,6 +2,8 @@
 
 此Web框架已经优化，改BUG，定制成为脚手架，见[https://www.github.com/hunterhug/GoWeb](https://www.github.com/hunterhug/GoWeb)
 
+版本待切换。。
+
 # 文件目录
 ```
 ----conf 配置文件夹

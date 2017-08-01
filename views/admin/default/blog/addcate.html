@@ -1,0 +1,195 @@
+<!DOCTYPE html >
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>增加文章分类</title>
+    <link rel="stylesheet" href="/static/home/bootstrap/css/bootstrap.min.css">
+</head>
+
+<body>
+<div class='container' style="margin-bottom: 50px;margin-top: 20px">
+    <div class='col-md-8'>
+        <form id="user_form" action="/blog/category/addcategory" role="form">
+            <div class="form-group">
+                <div class="alert alert-warning" id='warning-block'>
+                    <p>增加分类</p>
+                </div>
+                <div>
+                    <label>目录标题</label>
+                    <input type="text" class="form-control" name="title" id="title" placeholder="请输入目录标题"
+                           required="required">
+                </div>
+                <div id="titleTip"></div>
+            </div>
+            <div class="form-group">
+                <label>父目录</label>
+                <select id='mulu' class="form-control" name='mulu'>
+                    <option value=0>---顶级目录---</option>
+                {{range $index, $e :=.category}}
+                    <option value={{$e.Id}}>{{$e.Title}}</option>
+                {{end}}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>目录简介</label>
+                <textarea class="form-control" rows="8" id="editor_id" name="content" placeholder="目录简介"></textarea>
+            </div>
+            <div class="form-group">
+                <label>目录排序</label>
+                <input type="number" class="form-control" name="order" value='0' min="0"/>
+            </div>
+            <div class="form-group">
+                <label>目录状态</label>
+
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="status" value="2">禁用目录
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="status" value="1" checked>启用目录
+                    </label>
+                </div>
+            </div>
+            <div id='uploadlogo'></div>
+            <div class="form-group">
+                <div>
+                    <button type="submit" class="btn btn-default">增加分类</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class='col-md-3 col-md-offset-1'>
+        <div align="center">
+            <h1>图片</h1>
+
+            <div>
+                <img src="/static/ico/logo.jpg" id='logoimg' class="am-img-responsive" alt="图片"
+                     style="border:1px red solid;height: 260px; width: 260px;"/>
+
+                <p>请上传格式为.png .jpg .jpeg的图片。</p>
+
+                <p>上传完毕后需要点击左边曾加按钮才能生效。</p>
+            </div>
+            <div id='uploadphotoconfirm' style='color:red'></div>
+            <div>
+                <button type="submit" class="btn btn-default" id='upload_button'>上传图片</button>
+            </div>
+            <div class="btn btn-success"><a id='lookphoto' href="/static/ico/logo.jpg" target="_blank">查看图片</a></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/static//admin/formvalidator4.1.3/jquery-1.7.2.min.js"></script>
+<script src="/static/admin/formvalidator4.1.3/formValidator-4.1.3.min.js" type="text/javascript"
+        charset="UTF-8"></script>
+<script src="/static/admin/formvalidator4.1.3/formValidatorRegex.js" type="text/javascript" charset="UTF-8"></script>
+<link rel="stylesheet" href="/static/admin/kindeditor/themes/default/default.css"/>
+<link rel="stylesheet" href="/static/admin/kindeditor/themes/simple/simple.css"/>
+<script charset="utf-8" src="/static/admin/kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="/static/admin/kindeditor/lang/zh-CN.js"></script>
+<script src="/static/tool/ajaxupload.js"></script>
+<script>
+
+    KindEditor.ready(function (K) {
+        var option = {
+            themeType: 'simple',
+            cssPath: '/static/admin/kindeditor/plugins/code/prettify.css',
+            uploadJson: '/public/file/upload',
+            fileManagerJson: '/public/file/filemanage',
+            allowFileManager: true
+        };
+        var editor = K.create('textarea[name="content"]', option);
+        editor.sync();
+
+        $.formValidator.initConfig({
+            formID: "user_form",
+            submitOnce: true,
+            onSuccess: function () {
+                var registerForm = $("#user_form");
+                $.post(registerForm.attr("action"), registerForm.serialize() + "&isajax=1", function (data) {
+                    alert(data.info)
+                    if (data.status) {
+                        window.location.href = "/blog/category/addcategory";
+                        return;
+                    }
+                    $('#warning-block p').html('<strong>警告！</strong>' + data.info);
+                    return;
+                });
+            }
+        });
+
+        $("#title").formValidator({
+            onShowText: "请输入目录标题"
+        })
+                .inputValidator({
+                    min: 1,
+                    max: 100,
+                    onError: "标题最多100个字符",
+                    empty: {
+                        leftEmpty: false,
+                        rightEmpty: false,
+                        emptyError: "标题两边不能为空"
+                    }
+                })
+    });
+</script>
+<script>
+    $(function () {
+        var button = $('#upload_button'), interval;
+        var confirmdiv = $('#uploadphotoconfirm');
+        var fileType = "ptic", fileNum = "one";
+        new AjaxUpload(button, {
+            action: "/public/file/upload?dir=image",
+            name: 'imgFile',
+            responseType: 'json',
+            onSubmit: function (file, ext) {
+                if (fileType == "pic") {
+                    if (ext && /^(jpg|png|jpeg|gif)$/.test(ext)) {
+                        this.setData({
+                            'info': '文件类型为图片'
+                        });
+                    } else {
+                        confirmdiv.text('文件格式错误，请上传格式为.png .jpg .jpeg 的图片');
+                        return false;
+                    }
+                }
+
+                confirmdiv.text('文件上传中');
+
+                if (fileNum == 'one')
+                    this.disable();
+
+                interval = window.setInterval(function () {
+                    var text = confirmdiv.text();
+                    if (text.length <= 5) {
+                        confirmdiv.text('文件上传中...');
+                    } else {
+                        confirmdiv.text('文件上传中');
+                    }
+                }, 200);
+            },
+            onComplete: function (file, response) {
+                if (response.error == 1) {
+                    confirmdiv.text(response.message);
+                } else {
+                    confirmdiv.text("上传完成");
+                    $("#logoimg").attr("src", response.url);
+                    $('#lookphoto').attr("href", response.url);
+                    $("#uploadlogo").html("<input hidden='hidden' type='hidden'  name='photo' value='" + response.url + "'>");
+                }
+
+                window.clearInterval(interval);
+                this.enable();
+            }
+        });
+    });
+
+</script>
+</body>
+
+</html>

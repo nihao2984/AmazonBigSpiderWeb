@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.config.Title}}</title>
+	{{str2html .config.Address}}
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=1200, user-scalable=yes, target-densitydpi=device-dpi">
+    <link rel="stylesheet" href="/static/caa/art.styles.css">
+    <link rel="stylesheet" href="/static/caa/jquery.fancybox-1.3.4.css">
+    <script src="/static/caa/jquery.min.js"></script>
+    <script src="/static/caa/jquery.anythingslider.min.js"></script>
+    <script src="/static/caa/jquery.fancybox-1.3.4.js"></script>
+    <script src="/static/caa/modernizr.custom.53451.js"></script>
+    <script src="/static/caa/jquery.gallery.js"></script>
+    <script src="/static/caa/art.js"></script>
+    <script type="text/javascript" src="/static/caa/6697.js"></script>
+   	<script type="text/javascript" src="/static/tool/jquery.lazyload.min.js"></script>
+   <script>
+        $(function(){
+          $("img").lazyload({
+         placeholder : "/static/caa/img/loading.gif",
+                 effect: "fadeIn"
+           });  
+        })
+    </script>
+    <style>
+        .friend-link {
+            padding: 0 120px
+        }
+    </style>
+</head>
+<body>
+<!--装饰-->
+<div class="min-head clearfix">
+    <div class="nav wrap text-right">
+       <!-- <a  href="http://sjgm.caa.edu.cn">视觉国美</a>&nbsp;&nbsp;
+        <a  href="http://en.caa.edu.cn/">EN</a>
+        -->
+    </div>
+</div>
+<!--装饰结束-->
+
+<!--导航-->
+<div class="header">
+    <li class="wrap clearfix">
+        <a href="/" class="logo fl">
+            <img style="width:190px;height:34px" src="{{.config.Photo}}" alt=""/>
+        </a>
+        <ul class="main-nav" id="mainNav" style="padding-right:178px">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            {{range $i,$e:=.category}}
+            <li>
+                <a href="/{{substr $e.Title 0 20}}/">{{substr $e.Title 0 20}}</a>
+                {{if $e.Son}}
+                <dl class="sub-nav">
+                    <dt>
+                        {{range $j,$ee:=$e.Son}}
+                        <li>
+                        <a  href="/{{$ee.Title}}/" data-id="#jl_{{$ee.Id}}" class="tab-nav">{{$ee.Title}}</a>
+                        </li>
+                        {{end}}
+                    </dt>
+                </dl>
+                {{end}}
+            </li>
+            {{end}}
+
+            {{range $i,$e:=.photo}}
+            <li>
+                <a  href="/{{substr $e.Title 0 20}}/">{{substr $e.Title 0 20}}</a>
+                {{if $e.Son}}
+                <dl class="sub-nav">
+                    <dt>
+                        {{range $j,$ee:=$e.Son}}
+                        <li>
+                        <a  href="/{{$ee.Title}}/" data-id="#jl_{{$ee.Id}}" class="tab-nav">{{$ee.Title}}</a>
+                        </li>
+                        {{end}}
+                    </dt>
+                </dl>
+                {{end}}
+            </li>
+            {{end}}
+        </ul>
+    <div style="position: absolute;right: 0px;top:10px;font-size: 1.2em">联系方式：{{.config.Phone}}</div>
+    </div>
+</div>
+<!--导航结束-->
+
+<!-- 图片轮转 -->
+<div class="banner">
+    <div id="dg-container" class="dg-container">
+        <div class="dg-wrapper">
+        {{range $i,$e:=.roll}}
+            <a target="blank" href="{{$e.Url}}">
+                <img src="{{$e.Photo}}" alt="{{substr $e.Title 0 20}}"/>
+            </a>
+        {{end}}
+        </div>
+        <div class="nav">
+            <span class="dg-prev"></span>
+            <span class="dg-next"></span>
+        </div>
+    </div>
+</div>
+<!-- 图片轮转结束 -->
+
+<!-- 内容区1 -->
+<div class="wrap container">
+    <div class="box-row-2"><div style="padding: 10px;padding-top:5px;font-size:1.2em;color:red"><marquee direction="right">{{.config.Slogan}}</marquee></div></div>
+    <!--文章区-->
+    <div class="box-row-2">
+        <div class="box box-col-1">
+            <div class="hd hd-tabs" data-toggle="tabs">
+                <h2 class="tab-nav one current" data-id="#z1">
+                    <a  href="/{{.t1c.Title}}" class="more"></a>{{.t1c.Title}}
+                </h2>
+
+                <h2 class="tab-nav" data-id="#z2">
+                    <a  href="/{{.t2c.Title}}" class="more"></a>{{.t2c.Title}}
+                </h2>
+            </div>
+            <div class="bd">
+                <div class="news-list tab-plane" id="z1">
+                    <ul>
+                        <li class="pic">
+                        {{if .t1c}}
+                            <a target="blank" href="/{{.t1c.Title}}">
+                                <img src="{{.t1c.Image}}" alt=""/>
+                            </a>
+                        {{end}}
+
+                        </li>
+                        {{range $i,$e:=.t1}}
+                            <li><!--<em class="fr en">{{dateformat $e.Createtime "2006/1/02"}}
+                            </em>-->
+                                <a  href="/{{$.t1c.Title}}/{{$e.Id}}" class="tit">
+                                {{if eq $e.Istop 1}}[顶] {{else}}{{end}}{{substr $e.Title 0 25}}...
+                                </a>
+                            </li>
+                        {{end}}
+                    </ul>
+                </div>
+                <div class="news-list tab-plane" id="z2" style="display:none">
+                    <ul>
+                        <li class="pic">
+                        {{if .t2c}}
+                            <a target="blank" href="/{{.t2c.Title}}">
+                                <img src="{{.t2c.Image}}" alt=""/>
+                            </a>
+                        {{end}}
+
+                        </li>
+                        {{range $i,$e:=.t2}}
+                            <li><!--<em class="fr en">{{dateformat $e.Createtime "2006/1/02"}}
+                            </em>-->
+                                <a  href="/{{$.t2c.Title}}/{{$e.Id}}" class="tit">
+                                {{if eq $e.Istop 1}}[顶] {{else}}{{end}}{{substr $e.Title 0 25}}...
+                                </a>
+                            </li>
+                        {{end}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="box box-col-2">
+            <div class="hd hd-tabs" data-toggle="tabs">
+                <a target="blank" href="/{{.t3c.Title}}" class="more"></a><h2 class="tab-nav one current" data-id="#z3">{{.t3c.Title}}</h2>
+
+                <h2 class="tab-nav" data-id="#z4"><a target="blank" href="/{{.t4c.Title}}" class="more"></a>{{.t4c.Title}}</h2>
+            </div>
+            <div class="bd">
+                <div class="news-list tab-plane" id="z3">
+                    <ul>
+                        {{range $i,$e:=.t3}}
+                            <li><em class="fr en">{{dateformat $e.Createtime "2006/1/02"}}
+                            </em>
+                                <a  href="/{{$.t3c.Title}}/{{$e.Id}}" class="tit">
+                                {{if eq $e.Istop 1}}[顶] {{else}}{{end}}{{substr $e.Title 0 30}}...
+                                </a>
+                            </li>
+                        {{end}}
+                    </ul>
+                </div>
+                <div class="news-list tab-plane" style="display:none" id="z4">
+                    <ul>
+                            {{range $i,$e:=.t4}}
+                            <li><em class="fr en">{{dateformat $e.Createtime "2006/1/02"}}
+                            </em>
+                                <a  href="/{{$.t4c.Title}}/{{$e.Id}}" class="tit">
+                                {{if eq $e.Istop 1}}[顶] {{else}}{{end}}{{substr $e.Title 0 30}}...
+                                </a>
+                            </li>
+                        {{end}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--文章区结束-->
+
+    <!--学生风采-->
+    <div class="box-row-3">
+        <!--最多六张 -->
+        <div class="box">
+			<div class="hd">
+			<a target="blank" href="{{.t5c.Title}}" class="more"></a>
+				<h2>{{.t5c.Title}}<span class="en">ACADEMY DAILY</span></h2>
+			</div>
+			<div class="bd">
+				<div class="book-scroll">
+					<div class="book-scroll-wrap">
+						<ul>
+                            {{range $i,$e:=.t5}}
+                            {{if eq $i 0}}
+							<li class="open">
+                                {{else}}
+                                    	<li>
+                                {{end}}
+                                <a href="javascript:void(0);" class="pic">
+                                    <div class="red-date">
+									<div>{{dateformat $e.Createtime "01/02"}}</div>
+									<a target="blank" href="/{{$.t5c.Title}}/{{$e.Id}}"><img src="{{$e.Photo}}" alt="{{substr $e.Title 0 20}}"></a>
+                                    </div>
+								</a>
+								<div class="detail">
+									<h3>{{substr $e.Title 0 40}}</h3>
+									<p>{{substr $e.Descontent 0 100}}</p>
+									<p></p>
+									<p></p>
+									<p>&nbsp;</p>
+									<p><a target="blank" href="/{{$.t5c.Title}}/{{$e.Id}}">详细内容</a></p>
+								</div>
+							</li>
+                            {{end}}
+						</ul>
+					</div>
+					<a href="javascript:void(0)" class="btn-prev">prev</a>
+					<a href="javascript:void(0)" class="btn-next">next</a>
+				</div>
+			</div>
+		</div>
+        {{range $i,$e:=.t6}}
+            {{if eq $i 0}}
+            <div class="box box-col-1" style="height:343px">
+            {{else if eq $i 1}}
+                <div class="box box-col-2" style="height:343px">
+                {{else}}
+                    <div class="box box-col-3" style="height:343px">
+                    {{end}}
+            <div class="hd">
+                {{if eq $i 0}}
+                <h2>{{$.t6c.Title}}</h2>
+                {{end}}
+                {{if eq $i 2}}
+                <a  href="/{{$.t6c.Title}}" class="more"></a>
+                {{end}}
+            </div>
+            <div class="bd">
+                <div style="text-align:center;padding: 5px;font-size: 1.2em;color:gray">{{substr $e.Title 0 20}}</div>
+                <a target="blank" href="{{$.t6c.Title}}/{{$e.Id}}">
+                    <img src="{{$e.Photo}}" alt="{{substr $e.Title 0 20}}"/>
+                </a>
+            </div>
+
+        </div>
+        {{end}}
+    </div>
+    <!--学生风采结束-->
+
+    <!--网站介绍 -->
+    <div class="box">
+        <div class="hd">
+            <h2>画室介绍</h2>
+        </div>
+
+        <div class="bd" id="jinhan">
+            {{str2html .config.Content}}
+        </div>
+    </div>
+    <!--网站介绍结束 -->
+
+    <!--学生作品 -->
+    <div class="box-row-3">
+        {{range $i,$e:=.t8}}
+            {{if lt $i 3}}
+                {{if eq $i 0}}
+                <div class="box box-col-1">
+                {{else if eq $i 1}}
+                    <div class="box box-col-2">
+                    {{else}}
+                        <div class="box box-col-3">
+                        {{end}}
+            <div class="hd">
+                {{if eq $i 0}}
+                <h2>{{$.t8c.Title}}</h2>
+                {{end}}
+                {{if eq $i 2}}
+                <a  href="/{{$.t8c.Title}}" class="more"></a>
+                {{end}}
+            </div>
+            <div class="bd">
+                <div style="text-align:center;padding: 5px;font-size: 1.2em;color:gray">{{substr $e.Title 0 20}}</div>
+                <a target="blank" href="{{$.t8c.Title}}/{{$e.Id}}"><img src="{{$e.Photo}}" alt="{{substr $e.Title 0 20}}"/></a>
+            </div>
+        </div>
+            {{end}}
+        {{end}}
+    </div>
+    <!--学生作品结束 -->
+
+</div>
+<!--内容区1结束 -->
+
+
+
+<!--脚部 -->
+<div class="footer">
+    <div class="wrap">
+        <!--
+        <div class="box">
+				<div class="hd">
+					<h2>导航<span class="en">NAVIGATION</span></h2>
+				</div>
+				<div class="bd">
+					<div class="tab-content">
+						<div class="tab-plane" id="syyx">
+							<div class="news-list">
+								<ul><li><a target="blank" href="/xy/jxjg/zghyys/" class="tit">中国画与书法艺术学院</a></li></ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>-->
+        <div class="logo-link">
+        <div>{{str2html .config.Code3}}</div>
+        </div>
+    </div>
+</div>
+<!--脚部结束 -->
+    	<p>
+        	<a class="btn-to-top" title="返回顶部" target="_self" href="#">回顶部</a>
+    	</p>
+ <!-- JiaThis Button BEGIN -->
+<!--<script type="text/javascript" src="http://v3.jiathis.com/code_mini/jiathis_r.js" charset="utf-8"></script>-->
+            <!--统计-->
+{{str2html .config.Code2}}
+</body>
+</html>

@@ -1,0 +1,249 @@
+<table id="dg" title="数据列表" style="width:550px;height:250px">
+</table>
+
+<div id="toolbar">
+    <div style="font-size:1.0em">
+    <label style="margin-left:10px"> 大类名：</label>
+    <select id='bigname' class="easyui-combobox">
+<option value='all'>All</option>
+<!--<option value='null'>问题数据</option>-->
+{{range $index, $e :=.category}}
+        <option value={{$e.Bigpname}}>{{$e.id}}. {{$e.Bigpname}}</option>
+    {{end}}
+    </select>
+    <label style="margin-left:10px"> 日期：</label>
+    <input id="date" type="text" value="2016-11-02" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser" />
+     <!--
+     <label style="margin-left:10px"> 状态：(大类排名与小类排名已经分开)</label>
+        <select id='iscatch' class="easyui-combobox" style="width:100px">
+            <option value="2">全部</option>
+          <option value="1">已抓</option>
+            <option value="0">待抓</option>
+            </select>
+       -->
+        <script type="text/javascript">
+ function myformatter(date){
+ var y = date.getFullYear();
+ var m = date.getMonth()+1;
+ var d = date.getDate();
+ return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+}
+ function myparser(s){
+ if (!s) return new Date();
+ var ss = (s.split('-'));
+var y = parseInt(ss[0],10);
+ var m = parseInt(ss[1],10);
+var d = parseInt(ss[2],10);
+if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+return new Date(y,m-1,d);
+}else{
+ return new Date();
+ }
+ }
+ </script>
+    <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="getabout()">查询</a>
+        <label style="margin-left:10px"> ASIN：</label>
+        <input type="text" id="asin" name="asin" />
+        <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="getabout1()">查找</a>
+
+        <label style="margin-left:10px"> 小类名：</label>
+        <input type="text" id="name" name="name" />
+        <a href="#" style="margin-left:10px;width:80px" class="easyui-linkbutton" onclick="getabout2()">查找</a>
+      <!--  <a href="#" class="easyui-linkbutton" onclick="exportdata()">全部导出</a>-->
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#dg').datagrid({
+        url: '/uk/base/query',
+        collapsible: true,
+        toolbar: '#toolbar',
+        rownumbers: true,
+        pageSize:5,
+        pagination: true,
+        pageList: [5,10, 20],
+        fit: true,
+        columns: [[
+          /*  {field: 'id', title: 'ID', width: 80, hidden: true},*/
+            {field: 'asin', title: 'Asin', width: 80,align: 'center',
+                formatter: function (value, row, index) {
+                    return "<a href='https://www.amazon.co.uk/dp/" + value + "' target='_blank'>" + value + "</a>";
+                }},
+            {field: 'title', title: '标题', width: 300,
+                formatter: function (value, row, index) {
+                    return value;
+                }},
+            {field: 'price', title: '价格', width: 120,align: 'center'},
+            {field: 'name', title: '小类名', width: 120,
+                formatter: function (value, row, index) {
+                    return "<a href='" + row.url + "' target='_blank'>" + value + "</a>";
+                }},
+            {field: 'smallrank', title: '小类排名', width: 80,align: 'center'},
+            {field: 'bigname', title: '大类名', width: 120,align: 'center',
+                formatter: function (value, row, index) {
+                    return "<a href='" + row.purl + "' target='_blank'>" + value + "</a>";
+                }},
+            {field: 'rbigname', title: '实际大类', width: 120,align: 'center'},
+            {field: 'rank', title: '大类排名', width: 80,align: 'center'},
+        /*    {field: 'soldby', title: 'Sold by', width: 80,align: 'center',
+                formatter: function (value, row, index) {
+                d=value
+                if(value=="No sold"){
+                    return d
+                }
+                if(value=="Amazon.com" || value==null){
+                    return d
+                }
+                return "<a href='" + value + "' target='_blank'>" + "Sold" + "</a>";
+                }},
+            {field: 'shipby', title: 'Ship by', width: 120,align: 'center'},*/
+            {field: 'reviews', title: 'Reviews', width: 80,align: 'center'},
+            {field: 'score', title: 'Star score', width: 80,align: 'center'},
+           /* {field: 'commenttime', title: 'Date first available', width: 120,align: 'center'},*/
+            {field: 'img', title: '图像', width: 120,align: 'center',
+                formatter: function (value, row, index) {
+                    if(value){
+                        return "<img style='width:100px;height:100px' src='" + value + "' />";
+                    }else{
+                        return "<img style='width:100px;height:100px' src='/static/ico/avatar.png' />";
+                    }
+                }},
+                  {field: 'histroy', title: '历史趋势', width: 120,align: 'center',
+            formatter: function (value, row, index) {
+                    return "<a target='_blank' href='/uk/big/asin?asin="+row.asin+"'>历史趋势</a>"
+                }
+            },
+           /* {field: 'iscatch', title: '状态', width: 120,align: 'center',
+            formatter: function (value, row, index) {
+                    d=""
+                    if (value=="1"){
+                    d="<span style='color:green'>已抓</span>";
+                    }
+                    else{
+                    d="<span style='color:red'>待抓</span>";
+                    }
+                    return d;
+                }
+            },*/
+             {
+                field: 'createtime', title: '列表时间', width: 120,
+                formatter: function (value, row, index) {
+                    return value;
+                }
+            }
+           /* ,
+             {
+                field: 'updatetime', title: '详情时间', width: 120,
+                formatter: function (value, row, index) {
+                    return value;
+                }
+            }*/
+
+        ]]
+    });
+
+
+    function getabout() {
+        var datename = $('#date').datebox('getValue');
+        if(datename==""){
+                       $.messager.show({	// show error message
+                title: '消息',
+                msg: "日期不能为空(20161010)"
+            });
+            return
+        }
+        var bigname = $('#bigname').combobox('getValue');
+        //var iscatch = $('#iscatch').combobox('getValue');
+       // if(iscatch=="1" || iscatch=="0"||iscatch=="2"){
+        $('#dg').datagrid('load', {
+            datename: datename,
+            bigname: bigname,
+            iscatch:"2"
+        });
+
+      /* }else{
+                  $.messager.show({	// show error message
+                title: '消息',
+                msg: "抓取状态错误"
+            });
+        }*/
+    }
+
+        function exportdata() {
+        var datename = $('#date').datebox('getValue');
+        if(datename==""){
+           $.messager.show({	// show error message
+                title: '消息',
+                msg: "请选择日期"
+            });
+            return
+        }
+        if(bigname=="all"){
+           $.messager.show({	// show error message
+                title: '消息',
+                msg: "不能导出全部大类"
+            });
+        }
+        var bigname = $('#bigname').combobox('getValue');
+        $.post('/uk/base/export', {'datename':datename,'bigname': bigname}, function (result) {
+                if(result.status==true){
+                    window.open(result.info)
+                }else{
+                $.messager.show({	// show error message
+                title: '消息',
+                msg: result.info
+            });
+                }
+           })
+    }
+
+     function getabout1() {
+     var datename = $('#date').datebox('getValue');
+        if(datename==""){
+                       $.messager.show({	// show error message
+                title: '消息',
+                msg: "日期不能为空(20161010)"
+            });
+            return
+        }
+        var asin = $('#asin').val();
+        //alert(asin)
+        if(asin==""){
+          $.messager.show({	// show error message
+                title: '消息',
+                msg: "Asin不能为空"
+            });
+        return
+        }
+        $('#dg').datagrid('load', {
+         datename: datename,
+            asin:asin
+        });
+
+    }
+
+    function getabout2() {
+     var datename = $('#date').datebox('getValue');
+        if(datename==""){
+                       $.messager.show({	// show error message
+                title: '消息',
+                msg: "日期不能为空(20161010)"
+            });
+            return
+        }
+        var asin = $('#name').val();
+        //alert(asin)
+        if(asin==""){
+          $.messager.show({	// show error message
+                title: '消息',
+                msg: "name不能为空"
+            });
+        return
+        }
+        $('#dg').datagrid('load', {
+         datename: datename,
+            name:asin
+        });
+
+    }
+</script>

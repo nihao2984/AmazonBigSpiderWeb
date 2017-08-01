@@ -1,0 +1,93 @@
+<div class="admin-content">
+    <div class="admin-content-body">
+        <div class="am-cf am-padding am-padding-bottom-0">
+            <div class="am-fl am-cf">
+                <strong class="am-text-primary am-text-lg">系统信息</strong> /
+                <small>System Info</small>
+            </div>
+        </div>
+        <div class="am-g">
+            <div class="am-u-sm-12 am-u-sm-centered">
+                <h2 style="text-align: center">“{{.user.Nickname}}”用户，您好！</h2>
+            </div>
+            <div class="am-u-sm-8 am-u-sm-centered" >
+                <fieldset>
+                    <legend>系统信息</legend>
+                    <table class="am-table am-table-hover">
+                        <tbody>
+                            <tr class="am-primary">
+                                <th colspan="2" class="title">登录信息</th>
+                            </tr>
+                            <tr>
+                                <td>登陆账号</td>
+                                <td>{{.user.Username}}</td>
+                            </tr>
+                            <tr>
+                                <td>联系邮箱</td>
+                                <td>{{.user.Email}}</td>
+                            </tr>
+                            <tr>
+                                <td>账号说明</td>
+                                <td>{{.user.Remark}}</td>
+                            </tr>
+                            <tr>
+                                <td>上次登陆时间</td>
+                                <td>{{dateformat .user.Lastlogintime "2006-01-02 15:04:05"}}</td>
+                            </tr>
+                            <tr>
+                                <td>上次登陆IP</td>
+                                <td>{{.user.Lastip}}</td>
+                            </tr>
+                            <tr>
+                                <td>登陆次数</td>
+                                <td>{{.user.Logincount}}</td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                            <tr class="am-primary">
+                                <th colspan="2" class="title">系统环境</th>
+                            </tr>
+                            <tr>
+                                <td>主机名称：</td>
+                                <td>{{.hostname}}</td>
+                            </tr>
+                            <tr>
+                                <td>Go语言版本：</td>
+                                <td>{{.gover}}</td>
+                            </tr>
+                            <tr>
+                                <td>操作系统：</td>
+                                <td>{{.os}} ({{.arch}})</td>
+                            </tr>
+                            <tr>
+                                <td>CPU数量</td>
+                                <td>{{.cpunum}}</td>
+                            </tr>
+                        </tbody>
+                        <tbody>
+                            <tr class="am-primary">
+                                <th colspan="2" class="title">数据统计</th>
+                            </tr>
+                            <tr>
+                                <td width="250">文章数量：</td>
+                                <td>{{.postnum}}</td>
+                            </tr>
+                            <tr>
+                                <td>分类数量：</td>
+                                <td>{{.tagnum}}</td>
+                            </tr>
+                            <tr>
+                                <td>用户数量：</td>
+                                <td>{{.usernum}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <footer class="admin-content-footer">
+        <hr>
+        <p class="am-padding-left">Copyright &copy; 2016 缀美画室. All Rights Reserved.</p>
+    </footer>
+</div>

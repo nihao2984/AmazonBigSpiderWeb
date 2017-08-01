@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>BI大数据后台管理系统 v{{.version}}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link href="/static/admin/adminassets/css/dpl-min.css" rel="stylesheet" type="text/css" />
+    <link href="/static/admin/adminassets/css/bui-min.css" rel="stylesheet" type="text/css" />
+    <link href="/static/admin/adminassets/css/main-min.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div class="header">
+        <div class="dl-title">
+            <!-- <img src="/static/admin/adminassets/img/top.png"> -->
+            <p>
+                <span><a href="/public/index">登陆时间:{{dateformat .user.Lastlogintime "2006-01-02 15:04:05"}}</a></span> 现在时间：
+                <span id='nowDateTimeSpan'></span>
+            </p>
+        </div>
+        <div class="dl-log">欢迎您，<span class="dl-log-user">{{.user.Nickname}}</span><a href="/public/logout" title="退出系统" class="dl-log-quit">[退出]</a><a href="/public/changepwd" title="修改密码" target="_blank" class="dl-log-quit">[修改密码]</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="dl-main-nav">
+            <div class="dl-inform">
+                <div class="dl-inform-title"><span class="dl-inform-icon dl-up"></span></div>
+            </div>
+            <ul id="J_Nav" class="nav-list ks-clear">
+              {{range $index1,$g:=.groups}}
+                {{if eq 1 $g.Status}}
+                <li class="nav-item dl-selected">
+                    <div class="nav-item-inner nav-home">{{$g.Title}}</div>
+                </li>
+                {{end}}
+                {{end}}
+            </ul>
+        </div>
+        <ul id="J_NavContent" class="dl-tab-conten">
+        </ul>
+    </div>
+    <script type="text/javascript" src="/static/admin/adminassets/js/jquery-1.8.1.min.js"></script>
+    <script type="text/javascript" src="/static/admin/adminassets/js/bui-min.js"></script>
+    <script type="text/javascript" src="/static/admin/adminassets/js/common/main-min.js"></script>
+    <script type="text/javascript" src="/static/admin/adminassets/js/config-min.js"></script>
+    <script type="text/javascript" src="/static/tool/timeclock.js"></script>
+    <script>
+    BUI.use('common/main', function() {
+        var config =[
+        {{range $index1,$g:=.groups}}
+        {{if eq 1 $g.Status}}
+        {
+            id: '{{$g.Id}}',
+            homePage: 0,
+            menu: [
+                    {{range $index2, $t := $.tree}}
+                    {{if eq $t.GroupId $g.Id}}
+                    {
+                        text: "{{$t.Text}}",
+                        items: [
+                        {{range $index3,$tc:=$t.Children}}
+                        {
+                            id: {{$tc.Id}},
+                            text: "{{$tc.Text}}",
+                            href: "{{$tc.Attributes.Url}}"
+                        },
+                        {{end}}
+                        ]
+                    },
+                    {{end}}
+                    {{end}}
+                ]
+            },
+            {{end}}
+            {{end}}
+            ]
+
+        new PageUtil.MainPage({
+            modulesConfig: config
+        });
+    });
+    </script>
+</body>
+
+</html>

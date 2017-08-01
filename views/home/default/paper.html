@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.config.Title}}|{{.thiscategory.Title}}</title>
+	{{str2html .config.Address}}
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=1200, user-scalable=yes, target-densitydpi=device-dpi">
+    <link rel="stylesheet" href="/static/caa/art.styles.css">
+    <link rel="stylesheet" href="/static/caa/jquery.fancybox-1.3.4.css">
+    <script src="/static/caa/jquery.min.js"></script>
+    <script src="/static/caa/jquery.anythingslider.min.js"></script>
+    <script src="/static/caa/jquery.fancybox-1.3.4.js"></script>
+    <script src="/static/caa/modernizr.custom.53451.js"></script>
+    <script src="/static/caa/jquery.gallery.js"></script>
+    <script src="/static/caa/art.js"></script>
+    <script type="text/javascript" src="/static/caa/6697.js"></script>
+    <link rel="stylesheet" href="/static/admin/kindeditor/plugins/code/prettify1.css"/>
+<script charset="utf-8" src="/static/admin/kindeditor/plugins/code/prettify.js"></script>
+   	<script type="text/javascript" src="/static/tool/jquery.lazyload.min.js"></script>
+   <script>
+        $(function(){
+          $("img").lazyload({ 
+         placeholder : "/static/caa/img/loading.gif",
+                 effect: "fadeIn"
+           });  
+
+              prettyPrint()
+        })
+
+    </script>
+    <style>
+        .friend-link {
+            padding: 0 120px
+        }
+    </style>
+</head>
+<body class="in-page">
+<!--装饰-->
+<div class="min-head clearfix">
+    <div class="nav wrap text-right">
+       <!-- <a  href="http://sjgm.caa.edu.cn">视觉国美</a>&nbsp;&nbsp;
+        <a  href="http://en.caa.edu.cn/">EN</a>
+        -->
+    </div>
+</div>
+<!--装饰结束-->
+
+<!--导航-->
+<div class="header">
+    <div class="wrap clearfix">
+        <a href="/" class="logo fl">
+            <img style="width:190px;height:34px" src="{{.config.Photo}}" alt=""/>
+        </a>
+        <ul class="main-nav" id="mainNav" style="padding-right:178px">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            {{range $i,$e:=.category}}
+            <li>
+                <a href="/{{$e.Title}}/">{{$e.Title}}</a>
+                {{if $e.Son}}
+                <dl class="sub-nav">
+                    <dt>
+                        {{range $j,$ee:=$e.Son}}
+                        <li>
+                        <a  href="/{{$ee.Title}}/" data-id="#jl_{{$ee.Id}}" class="tab-nav">{{$ee.Title}}</a>
+                        </li>
+                        {{end}}
+                    </dt>
+                </dl>
+                {{end}}
+            </li>
+            {{end}}
+
+            {{range $i,$e:=.photo}}
+            <li>
+                <a  href="/{{$e.Title}}/">{{$e.Title}}</a>
+                {{if $e.Son}}
+                <dl class="sub-nav">
+                    <dt>
+                        {{range $j,$ee:=$e.Son}}
+                        <li>
+                        <a  href="/{{$ee.Title}}/" data-id="#jl_{{$ee.Id}}" class="tab-nav">{{$ee.Title}}</a>
+                        </li>
+                        {{end}}
+                    </dt>
+                </dl>
+                {{end}}
+            </li>
+            {{end}}
+        </ul>
+    <div style="position: absolute;right: 0px;top:10px;font-size: 1.2em">联系方式：{{.config.Phone}}</div>
+    </div>
+</div>
+<!--导航结束-->
+
+<div class="container">
+    <div class="box page-box wrap">
+        <!-- 内页菜单 -->
+        {{if .son}}
+        <div class="in-menu" id="inMenu">
+            <a  href="javascript:void(0);" class="btn-menu"></a>
+
+            <div class="menu-wrap">
+                <h3>{{$.thiscategory.Title}}</h3>
+                <ul class="menu-items">
+                    {{range $i,$e:=.son}}
+                    <li><a  href="/{{$e.Title}}" class="tab-nav current">{{$e.Title}}</a></li>
+                    {{end}}
+                </ul>
+            </div>
+
+        </div>
+        {{end}}
+        <!-- end -->
+
+        <div class="hd">
+            <p class="history fr">
+                <a href="/"  class="CurrChnlCls" style="font-size: 15px">首页</a>
+                {{if .father}}
+                <a href="/{{.father.Title}}"  class="CurrChnlCls" style="font-size: 15px">-- {{.father.Title}}</a>
+                {{end}}
+                <a href="/{{.thiscategory.Title}}"  class="CurrChnlCls" style="font-size: 15px;color:darkred">-- {{.thiscategory.Title}}</a>
+            </p>
+
+            <h2>{{.thiscategory.Title}}<span class="en"></h2>
+        </div>
+        <div class="bd">
+				<div class="news-detail">
+					<div class="head">
+						<h1>{{substr .paper.Title 0 40}}</h1>
+						<p class="time" style='color:#444;'>作者：{{substr .paper.Author 0 10}}&nbsp;&nbsp;&nbsp;编辑于：{{dateformat .paper.Createtime "2006/1/02"}}&nbsp;&nbsp;&nbsp;阅读：{{.paper.View}}人</p>
+					</div>
+					<div class="detail">
+                        <div style="padding: 20px;font-size: 0.8em;font-style: italic;border-left: 5px solid gainsboro">
+                        简介：{{substr .paper.Descontent 0 100}}
+					    </div>
+                        <div style="padding: 5px;padding-top: 20px"><a href="{{.paper.Photo}}" ><img src="{{.paper.Photo}}" /></a></div>
+                        <div style="padding: 5px;margin-bottom: 30px">
+                        {{str2html .paper.Content}}
+					    </div>
+                        <!-- 多说评论框 start -->
+                        <div class="ds-thread" data-thread-key="/{{.thiscategory.Title}}/{{.paper.Id}}" data-title="{{.paper.Title}}" data-url="http://beautyart.lenggirl.com/{{.thiscategory.Title}}/{{.paper.Id}}"></div>
+                    <!-- 多说评论框 end -->
+                    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+                    <script type="text/javascript">
+                    var duoshuoQuery = {short_name:"{{.config.Code1}}"};
+                        (function() {
+                            var ds = document.createElement('script');
+                            ds.type = 'text/javascript';ds.async = true;
+                            ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                            ds.charset = 'UTF-8';
+                            (document.getElementsByTagName('head')[0]
+                             || document.getElementsByTagName('body')[0]).appendChild(ds);
+                        })();
+                        </script>
+<!-- 多说公共JS代码 end -->
+                    </div>
+				</div>
+				<div class="news-side" style="padding-top: 82px;padding-bottom: 20px">
+                    <div class="more-news">
+
+						<ul>
+                            {{range $i,$e:=.papers}}
+							<li>
+                            <a href="/{{$.thiscategory.Title}}/{{$e.Id}}" style="font-size: 1.1em;">
+                            <strong>
+                                {{if eq $e.Istop 1}}
+                                [顶]{{end}}
+                            {{substr $e.Title 0 25}}
+                            </strong>
+                            </a>
+                                <span  style="float: right">{{dateformat $e.Createtime "2006/1/02"}} &nbsp;&nbsp;阅读:
+                            {{$e.View}} 人</span>
+							</li>
+                            {{end}}
+
+						</ul>
+                                    {{str2html .nums}}
+                <style>
+                    .page{
+                        font-size: 1.1em;
+                        margin-top: 10px;
+                        text-align: center;
+                    }
+                    .jj{
+                        font-size: 1.5em;
+                        display: inline;
+                    }
+                    .page b{
+                        padding: 8px;
+                    }
+                    .page a{
+                        padding: 8px;
+                    }
+
+                </style>
+					</div>
+                    </div>
+        </div>
+    </div>
+
+
+<!-- 内容区2 -->
+<div class="wrap container">
+            <div class="in-share" style="text-align: center;font-size: 15px">
+                {{if .son}}
+                    {{range $i,$e:=.son}}
+                    <p class="col">
+                        <a  href="/{{$e.Title}}">-- {{$e.Title}}</a>
+                    </p>
+                    {{end}}
+                {{end}}
+            </div>
+</div>
+<!--内容区2结束 -->
+
+
+<!--脚部 -->
+<div class="footer">
+    <div class="wrap">
+        <!--
+        <div class="box">
+				<div class="hd">
+					<h2>导航<span class="en">NAVIGATION</span></h2>
+				</div>
+				<div class="bd">
+					<div class="tab-content">
+						<div class="tab-plane" id="syyx">
+							<div class="news-list">
+								<ul><li><a target="blank" href="/xy/jxjg/zghyys/" class="tit">中国画与书法艺术学院</a></li></ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>-->
+        <div class="logo-link">
+        <div>{{str2html .config.Code3}}</div>
+        </div>
+    </div>
+</div>
+<!--脚部结束 -->
+    	<p>
+        	<a class="btn-to-top" title="返回顶部" target="_self" href="#">回顶部</a>
+    	</p>
+<!--<script type="text/javascript" src="http://v3.jiathis.com/code_mini/jiathis_r.js" charset="utf-8"></script>-->
+            <!--统计-->
+{{str2html .config.Code2}}
+</body>
+</html>

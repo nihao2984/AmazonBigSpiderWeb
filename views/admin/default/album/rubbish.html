@@ -1,0 +1,169 @@
+<table id="dg" title="图片回收站" style="width:550px;height:250px">
+</table>
+
+<div id="toolbar">
+    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">删除图片</a>
+     <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="descoverUser()">恢复图片</a>
+
+
+    <label>目录：</label>
+    <select name='cid' id='cid' class="form-control" style='width:120px;margin: 0'>
+        <option value=""></option>
+    {{range $index, $e :=.category}}
+        <option value={{$e.Id}}>{{$e.Title}}</option>
+    {{range $index1, $e1 :=$e.Son}}
+        <option value={{$e1.Id}}>-------{{$e1.Title}}</option>
+    {{end}}
+    {{end}}
+    </select>
+    <label>置顶：</label>
+        <select id='top' class="form-control" name='top' style='width:120px;margin: 0 5px'>
+        <option value=-1></option>
+        <option value=1>已置顶</option>
+        <option value=0>未置顶</option>
+    </select>
+    <label>轮转：</label>
+        <select id='roll' class="form-control" name='roll' style='width:120px;margin: 0 5px'>
+        <option value=-1></option>
+        <option value=1>已轮转</option>
+        <option value=0>未轮转</option>
+    </select>
+    <a href="#" class="easyui-linkbutton" onclick="getabout()">查询</a>
+
+</div>
+
+<script type="text/javascript">
+    $('#dg').datagrid({
+        url: '/picture/photo/rubbish',
+        collapsible: true,
+        toolbar: '#toolbar',
+        rownumbers: true,
+        pagination: true,
+        pageList: [5, 10, 30],
+        fit: true,
+        columns: [[
+            {field: 'ck', checkbox: true},
+            {field: 'Id', title: '单页ID', width: 100, hidden: true},
+            {
+                field: 'Title', title: '标题', width: 120,
+                formatter: function (value, row, index) {
+                    return "<a target='_blank' href='__ROOT__/Ei/User/article?username=" + row.username + "&id=" + row.Id + "'>" + value + "</a>";
+                }
+            }, {
+                field: 'Photo',
+                title: '封面',
+                width: 100,
+                formatter: function (value, row, index) {
+                    return "<a href='" + value + "' target='_blank'>" + value + "</a>";
+                }
+            },
+            {field: 'Author', title: '作者', width: 120},
+            {field: 'Cid', title: '目录', width: 120},
+            {
+                field: 'Createtime', title: '创建时间', width: 120,
+                formatter: function (value, row, index) {
+                    if (value) return phpjs.date("Y-m-d H:i:s", phpjs.strtotime(value));
+                    return value;
+                }
+            },
+            {
+                field: 'Updatetime', title: '更新时间', width: 120,
+                formatter: function (value, row, index) {
+                    if (value) return phpjs.date("Y-m-d H:i:s", phpjs.strtotime(value));
+                    return value;
+                }
+            },
+            {field: 'View', title: '浏览量', width: 100},
+            {field: 'Sort', title: '排序', width: 100},
+            {
+                field: 'Istop', title: '是否置顶', width: 120,
+                formatter: function (value, row, index) {
+                    if (value == 1) {
+                        return "置顶";
+                    } else {
+                        return "不置顶";
+                    }
+                }
+            }
+            ,
+            {
+                field: 'Isroll', title: '是否轮转', width: 120,
+                formatter: function (value, row, index) {
+                    if (value == 1) {
+                        return "已轮转";
+                    } else {
+                        return "无";
+                    }
+                }
+            }
+            ,
+            {
+                field: 'Rollpath', title: '自定义轮转地址', width: 120,
+                formatter: function (value, row, index) {
+                    return  "<a href='"+value+"' target='_blank'>"+value+"</a>"
+                }
+            }
+
+        ]]
+    });
+
+
+    function destroyUser() {
+        var rows = $('#dg').datagrid('getSelections');
+        if (rows.length != 0) {
+            $.messager.confirm('Confirm', '你确定要彻底删除？', function (r) {
+                if (r) {
+                    var uri = "/picture/photo/realdelpaper";
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i];
+                        $.post(uri, {'id': row.Id}, function (result) {
+                            $.messager.show({	// show error message
+                                title: '消息',
+                                msg: result.info
+                            });
+                            $('#dg').datagrid('reload');	// reload the user da
+                        });
+                    }
+                }
+            });
+        } else {
+            alert("请勾选按钮")
+        }
+    }
+
+    function getabout() {
+        var status = 2;
+        var cid = $('#cid').val();
+        var top=$("#top").val();
+        var roll=$("#roll").val();
+        $('#dg').datagrid('load', {
+            status: status,
+            cid: cid,
+            top:top,
+            roll:roll
+        });
+    }
+
+     function descoverUser(){
+                var rows = $('#dg').datagrid('getSelections');
+        if (rows.length != 0) {
+            $.messager.confirm('Confirm', '你确定要恢复？', function (r) {
+                if (r) {
+                    var uri = "/picture/photo/updatepaper";
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i];
+                        $.post(uri, {'small':1,'id': row.Id,'status':0}, function (result) {
+                            $.messager.show({	// show error message
+                                title: '消息',
+                                msg: result.info
+                            });
+                            $('#dg').datagrid('reload');	// reload the user da
+                        });
+                    }
+                }
+            });
+        } else {
+            alert("请勾选按钮")
+        }
+    }
+</script>

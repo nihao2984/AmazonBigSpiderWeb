@@ -1,0 +1,197 @@
+<table id="dg" title="数据列表" style="width:550px;height:250px">
+</table>
+
+<div id="toolbar">
+    <div style="font-size:1.0em">
+    <label style="margin-left:10px"> 大类名：</label>
+    <select id='bigname' class="easyui-combobox">
+<option value=''>All</option>
+{{range $index, $e :=.category}}
+        <option value={{$e.id}}>{{$e.id}}. {{$e.Bigpname}}</option>
+    {{end}}
+    </select>
+        <label style="margin-left:10px"> 状态：</label>
+                <select id='isvalid' class="easyui-combobox" style="width:100px">
+            <option value="2">全部</option>
+            <option value="1">存活</option>
+            <option value="0">死亡</option>
+            </select>
+                <label style="margin-left:10px"> 最小层：</label>
+                <select id='small' class="easyui-combobox" style="width:100px">
+            <option value="2">全部</option>
+            <option value="1">是</option>
+            <option value="0">否</option>
+            </select>
+    <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="getabout()">查询</a>
+<label style="margin-left:10px"> 小类名：</label>
+        <input type="text" id="name" name="name" />
+        <a href="#" style="margin-left:10px;width:60px" class="easyui-linkbutton" onclick="getabout1()">查找</a>
+
+         <label style="margin-left:10px"> 勾选操作：</label>
+                <select id='page' class="easyui-combobox" style="width:50px">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+                    <option value="4">4</option>
+            <option value="5">5</option>
+                    </select>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="page()">更改页数</a>
+         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="good()">拯救页面</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="bad()">干掉页面</a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#dg').datagrid({
+
+        url: '/auas/url/query',
+        collapsible: true,
+        toolbar: '#toolbar',
+        rownumbers: true,
+        pageSize:5,
+        pagination: true,
+        pageList: [5, 10,20],
+        fit: true,
+        columns: [[
+        {field: 'ck', checkbox: true},
+            {field: 'id', title: '单页ID', width: 100},
+            {field: 'url', title: '类目', width: 300,align: 'center',
+                formatter: function (value, row, index) {
+                    return "<a href='" + value + "' target='_blank'>" + row.name + "</a>";
+                }},
+            {field: 'level', title: '层次', width: 80},
+            {field: 'bigpname', title: '大类名', width: 120,align: 'center'},
+            {field: 'ismall', title: '是否最小层', width: 80,align: 'center',
+                formatter: function (value, row, index) {
+                   if(value=="1"){
+                   return "是"}
+                   else{
+                    return "否";
+                    }
+                }},
+             {
+                field: 'createtime', title: '创建时间', width: 120,
+                formatter: function (value, row, index) {
+                   /* if (value) return phpjs.date("Y-m-d H:i:s", phpjs.strtotime(value));*/
+                    return value;
+                }
+            },
+            {field: 'page', title: '页数', width: 50},
+             {
+                field: 'isvalid', title: '状态', width: 120,
+                formatter: function (value, row, index) {
+                   if(value=="1"){
+                 return "<span style='color:green'>存活</span>";
+                   }
+                   else{
+                    return "<span style='color:red'>死亡</span>";
+                    }
+                }
+                }
+        ]]
+    });
+
+    function getabout() {
+        var small = $('#small').combobox('getValue');
+        var bigname = $('#bigname').combobox('getValue');
+        var isvalid =$('#isvalid').combobox('getValue');
+        $('#dg').datagrid('load', {
+            small: small,
+            bigname: bigname,
+            isvalid:isvalid
+        });
+
+    }
+
+       function getabout1() {
+        var asin = $('#name').val();
+        //alert(asin)
+        $('#dg').datagrid('load', {
+           name:asin
+        });
+
+    }
+
+     function good() {
+        var rows = $('#dg').datagrid('getSelections');
+        if (rows.length != 0) {
+            $.messager.confirm('Confirm', '你确定要生效？', function (r) {
+                if (r) {
+                    var uri = "/auas/url/update";
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i];
+                        $.post(uri, {'id': row.id,'isvalid':1}, function (result) {
+                            $.messager.show({	// show error message
+                                title: '消息',
+                                msg: result.info
+                            });
+                            if(result.status){
+                            $('#dg').datagrid('reload');	// reload the user da
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            alert("请勾选按钮")
+        }
+    }
+
+     function bad() {
+          var rows = $('#dg').datagrid('getSelections');
+        if (rows.length != 0) {
+            $.messager.confirm('Confirm', '你确定要失效？', function (r) {
+                if (r) {
+                    var uri = "/auas/url/update";
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i];
+                        $.post(uri, {'id': row.id,'isvalid':0}, function (result) {
+                            $.messager.show({	// show error message
+                                title: '消息',
+                                msg: result.info
+                            });
+                             if(result.status){
+                            $('#dg').datagrid('reload');	// reload the user da
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            alert("请勾选按钮")
+        }
+    }
+
+function page() {
+var page = $('#page').combobox('getValue');
+if(page!="1" && page!="2" && page!="3" && page!="4" && page!="5"){
+$.messager.show({	// show error message
+                                title: '消息',
+                                msg: "page not right"
+                            });
+}
+          var rows = $('#dg').datagrid('getSelections');
+        if (rows.length != 0) {
+            $.messager.confirm('Confirm', '你确定要改页数？', function (r) {
+                if (r) {
+                    var uri = "/auas/url/update";
+                    for (var i = 0; i < rows.length; i++) {
+                        var row = rows[i];
+                        $.post(uri, {'id': row.id,'page':page}, function (result) {
+                            $.messager.show({	// show error message
+                                title: '消息',
+                                msg: result.info
+                            });
+                             if(result.status){
+                            $('#dg').datagrid('reload');	// reload the user da
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            alert("请勾选按钮")
+        }
+    }
+
+</script>
