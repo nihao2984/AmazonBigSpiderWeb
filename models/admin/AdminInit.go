@@ -35,7 +35,7 @@ func InsertUser() {
 	u.Username = "admin"
 	u.Nickname = "admin"
 	u.Password = Pwdhash("admin")
-	u.Email = "569929309@qq.com"
+	u.Email = "459527502@qq.com"
 	u.Remark = "最高权限的王"
 	u.Status = 2
 	u.Createtime = GetTime()
@@ -48,7 +48,7 @@ func InsertUser() {
 	u1.Username = "test"
 	u1.Nickname = "测试用户"
 	u1.Password = Pwdhash("test")
-	u1.Email = "569929309@qq.com"
+	u1.Email = "459527502@qq.com"
 	u1.Remark = "测试用户"
 	u1.Status = 2
 	u1.Createtime = GetTime()
