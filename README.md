@@ -1,8 +1,9 @@
-亚马逊大爬虫可视化界面Web端
+# 亚马逊大爬虫可视化界面Web端
 
-此Web框架已经优化，改BUG，定制成为脚手架，见[https://www.github.com/hunterhug/GoWeb](https://www.github.com/hunterhug/GoWeb)
+亚马逊四站BI产品分布式爬虫端见： [Full Golang Automatic Amazon Distributed crawler|spider (USA, Japan, Germany and UK) | 亚马逊四站BI产品分布式爬虫端](https://github.com/hunterhug/AmazonBigSpider)
 
-版本待切换。。
+此Web框架已经优化，改BUG，定制成为另外的强大的网站，见[https://www.github.com/hunterhug/GoWeb](https://www.github.com/hunterhug/GoWeb)
+
 
 # 文件目录
 ```
