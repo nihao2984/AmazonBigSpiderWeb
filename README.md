@@ -1,9 +1,12 @@
 # 亚马逊大爬虫可视化界面Web端
 
+此为BI产品网站端，没有爬虫端，这个网站端几乎没有价值，请先启动爬虫端。有疑问可联系邮件或QQ。彻底开源。
+
 亚马逊四站BI产品分布式爬虫端见： [Full Golang Automatic Amazon Distributed crawler|spider (USA, Japan, Germany and UK) | 亚马逊四站BI产品分布式爬虫端](https://github.com/hunterhug/AmazonBigSpider)
 
 此Web框架已经优化，改BUG，定制成为另外的强大的网站，见[https://www.github.com/hunterhug/GoWeb](https://www.github.com/hunterhug/GoWeb)
 
+请安装Golang1.8环境和Mysql数据库，如何安装请百度。
 
 # 文件目录
 ```
@@ -39,22 +42,58 @@
 ```
 
 # 运行步骤
-1.运行init.sh进行包初始化或者根据提示go install，某些包有防火长城
 
-2.接着获取代码
+1.获取代码
 
 ```
-    go get -u -v github.com/hunterhug/AmazonBigSpiderWeb
-    或者
-	git clone https://www.github.com/hunterhug/AmazonBigSpiderWeb
+go get -u -v github.com/hunterhug/AmazonBigSpiderWeb
+或者
+git clone https://www.github.com/hunterhug/AmazonBigSpiderWeb
 ```
 
-3.初始化数据库
+2.配置MYSQL数据库，更改配置文件conf/app.conf中密码，将459527502改为你的密码，用户名仍然为root
+
+```
+httpport = 8080
+db_host = 127.0.0.1
+db_port = 3306
+db_user = root
+db_pass = 459527502
+db_name = beauty
+db_type = mysql
+db_prefix = tb_
+usadatadb = root:459527502@tcp(127.0.0.1:3306)/smartdb?charset=utf8
+usabasicdb = root:459527502@tcp(127.0.0.1:3306)/smart_base?charset=utf8
+usahashdb = root:459527502@tcp(127.0.0.1:3306)/smart_hash?charset=utf8
+jpdatadb = root:459527502@tcp(127.0.0.1:3306)/jp_smartdb?charset=utf8
+jpbasicdb = root:459527502@tcp(127.0.0.1:3306)/jp_smart_base?charset=utf8
+jphashdb = root:459527502@tcp(127.0.0.1:3306)/jp_smart_hash?charset=utf8
+dedatadb = root:459527502@tcp(127.0.0.1:3306)/de_smartdb?charset=utf8
+debasicdb = root:459527502@tcp(127.0.0.1:3306)/de_smart_base?charset=utf8
+dehashdb = root:459527502@tcp(127.0.0.1:3306)/de_smart_hash?charset=utf8
+ukdatadb = root:459527502@tcp(127.0.0.1:3306)/uk_smartdb?charset=utf8
+ukbasicdb = root:459527502@tcp(127.0.0.1:3306)/uk_smart_base?charset=utf8
+ukhashdb = root:459527502@tcp(127.0.0.1:3306)/uk_smart_hash?charset=utf8
+```
+
+运行过程中如果数据库连接爆了，请编辑MYSQL配置文件，添加以下（百度可得），ulimit也需改大。
+
+```
+[mysqld]
+max_connections = 15000
+max_connect_errors = 6000
+open_files_limit = 65535
+table_open_cache = 1000
+```
+
+3.初始化基本数据库
 
 ```
 go build main.go 
 ./main -s
 ```
+
+以上为初始化基本数据库beauty，你还需要自行增加uk_smart_base等八个数据库以及80*8=640个Hash分表数据库，此类数据库初始化请参考[爬虫端](https://github.com/hunterhug/AmazonBigSpider)
 
 4.运行
 
@@ -67,141 +106,13 @@ go run main.go
 bee run
 ```
 
-打开浏览器：
-127.0.0.1：8080即可登录，账号密码为admin，admin
+5. 使用
+
+打开浏览器：[http://127.0.0.1:8080](http://127.0.0.1:8080)即可登录，账号密码为admin，admin
 
 ![](index.png)
 ![](web.png)
 
-5.nginx配置 nginx.conf
-
-```
-server{
-        listen 80;
-        server_name bi.lenggirl.com bi.smartdo.xin;
-        charset utf-8;
-        access_log /data/logs/nginx/beauty.lenggirl.com.log;
-        #error_log /data/logs/nginx/www.lenggirl.com.err;
-        location / {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $http_host;
-        proxy_redirect off;
-        proxy_pass http://localhost:8080;
-        proxy_set_header X-Real-Ip $remote_addr;
-        }
-}
-
-```
-
-server_name和proxy_pass需要改
-
-6.填写配置文件conf/app.conf
-
-```
-appname = beauty
-version = 1.0.0
-
-# 生产环境改为prod
-runmode = dev
-
-###################
-
-# 可以直接通过静态访问的文件夹，位于根目录下面
-StaticDir = static:static file:file
-
-# 国际化语言
-lang_types = en-US|zh-CN
-
-# 路由区分大小写
-RouterCaseSensitive = false
-
-# 中国时间请设为8，不然数据库时间会混乱
-timezone = 8
-
-# 调试数据库 close/open
-dblog = close
-
-###################
-
-# 前台模板，可以改,wordpress功能
-home_template = home/beauty
-admin_template = admin/default
-
-# 智干模板
-smart_temlate = smart/default
-
-# 文件上传保存地址，后面不可以是/，必须是根目录下的文件夹，为了速度更快，文件直接到前端，可改写
-filebasepath = file
-
-###################
-
-# 权限控制，建议不要乱改
-sessionon = true
-sessionname = beautysessionid
-sessionhashkey = mostbeautyart
-rbac_role_table = role
-rbac_node_table = node
-rbac_group_table = group
-rbac_user_table = user
-rbac_admin_user = admin
-not_auth_package = public,static,home,file
-
-###################
-
-# 0不验证，1验证，2实时验证,建议不要改
-user_auth_type = 2
-rbac_auth_gateway = /public/login
-
-# cookie一周内登录开关，1表示开，建议设为0
-cookie7 = 1
-
-[dev]
-httpport = 8080
-db_host = 127.0.0.1
-db_port = 3306
-db_user = root
-db_pass = smart2016
-db_name = beauty
-db_type = mysql
-db_prefix = tb_
-usadatadb = root:smart2016@tcp(127.0.0.1:3306)/smartdb?charset=utf8
-usabasicdb = root:smart2016@tcp(127.0.0.1:3306)/smart_base?charset=utf8
-usahashdb = root:smart2016@tcp(127.0.0.1:3306)/smart_hash?charset=utf8
-jpdatadb = root:smart2016@tcp(127.0.0.1:3306)/jp_smartdb?charset=utf8
-jpbasicdb = root:smart2016@tcp(127.0.0.1:3306)/jp_smart_base?charset=utf8
-jphashdb = root:smart2016@tcp(127.0.0.1:3306)/jp_smart_hash?charset=utf8
-dedatadb = root:smart2016@tcp(127.0.0.1:3306)/de_smartdb?charset=utf8
-debasicdb = root:smart2016@tcp(127.0.0.1:3306)/de_smart_base?charset=utf8
-dehashdb = root:smart2016@tcp(127.0.0.1:3306)/de_smart_hash?charset=utf8
-ukdatadb = root:smart2016@tcp(127.0.0.1:3306)/uk_smartdb?charset=utf8
-ukbasicdb = root:smart2016@tcp(127.0.0.1:3306)/uk_smart_base?charset=utf8
-ukhashdb = root:smart2016@tcp(127.0.0.1:3306)/uk_smart_hash?charset=utf8
-dbback = root:smart2016@tcp(127.0.0.1:3306)/smart_backstage?charset=utf8
-
-[prod]
-EnableGzip = true
-httpport = 80
-db_host = 127.0.0.1
-db_port = 3306
-db_user = root
-db_pass = smart2016
-db_name = beauty
-db_type = mysql
-db_prefix = tb_
-usadatadb = root:smart2016@tcp(127.0.0.1:3306)/smartdb?charset=utf8
-usabasicdb = root:smart2016@tcp(127.0.0.1:3306)/smart_base?charset=utf8
-usahashdb = root:smart2016@tcp(127.0.0.1:3306)/smart_hash?charset=utf8
-jpdatadb = root:smart2016@tcp(127.0.0.1:3306)/jp_smartdb?charset=utf8
-jpbasicdb = root:smart2016@tcp(127.0.0.1:3306)/jp_smart_base?charset=utf8
-jphashdb = root:smart2016@tcp(127.0.0.1:3306)/jp_smart_hash?charset=utf8
-dedatadb = root:smart2016@tcp(127.0.0.1:3306)/de_smartdb?charset=utf8
-debasicdb = root:smart2016@tcp(127.0.0.1:3306)/de_smart_base?charset=utf8
-dehashdb = root:smart2016@tcp(127.0.0.1:3306)/de_smart_hash?charset=utf8
-ukdatadb = root:smart2016@tcp(127.0.0.1:3306)/uk_smartdb?charset=utf8
-ukbasicdb = root:smart2016@tcp(127.0.0.1:3306)/uk_smart_base?charset=utf8
-ukhashdb = root:smart2016@tcp(127.0.0.1:3306)/uk_smart_hash?charset=utf8
-dbback = root:smart2016@tcp(127.0.0.1:3306)/smart_backstage?charset=utf8
-```
 
 # 项目约定
 >RBAC权限相关的models统一放在admin文件夹，其他都放在home文件夹.
