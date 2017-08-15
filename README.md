@@ -93,7 +93,7 @@ go build main.go
 ./main -s
 ```
 
-以上为初始化基本数据库beauty，你还需要自行增加uk_smart_base等八个数据库以及80*8=640个Hash分表数据库，此类数据库初始化请参考[爬虫端](https://github.com/hunterhug/AmazonBigSpider)
+以上为初始化基本数据库beauty，你还需要自行增加uk_smart_base等八个数据库以及80*4=320个Hash分表数据库，此类数据库初始化请参考[爬虫端](https://github.com/hunterhug/AmazonBigSpider)
 
 4.运行
 
